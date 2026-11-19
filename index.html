@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Institute</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#15110d">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="ink"] { --bg:#15110d; --bg2:#1d1712; --card:#241d16; --card2:#2c2319; --line:#3d3125; --text:#ecdfc6; --dim:#a8977a; --accent:#c9a45c; --accent2:#8a6d3b; --c:#a8977a; --u:#7fa6c9; --r:#d78a5a; --ok:#9db36f; }
+[data-theme="oxblood"] { --bg:#150b0b; --bg2:#1e1011; --card:#271416; --card2:#30191b; --line:#4a2427; --text:#f0ddd3; --dim:#b39389; --accent:#cf6a55; --accent2:#7d2e27; }
+[data-theme="verdigris"] { --bg:#0d1412; --bg2:#121d1a; --card:#172621; --card2:#1d2f29; --line:#2b4038; --text:#dfe9dd; --dim:#93a89b; --accent:#74b99d; --accent2:#3e7a66; }
+[data-theme="midnight"] { --bg:#090d17; --bg2:#0e1422; --card:#131b2c; --card2:#182237; --line:#26324c; --text:#dde3f0; --dim:#8e9ab3; --accent:#b9c7ea; --accent2:#5867a0; }
+[data-theme="gilt"] { --bg:#0b0a08; --bg2:#13110d; --card:#1a1712; --card2:#211d16; --line:#3b3220; --text:#f3e9cf; --dim:#a99c7c; --accent:#e4bf5c; --accent2:#9b7a2a; }
+* { box-sizing:border-box; }
+html, body { margin:0; background:var(--bg); color:var(--text); }
+body { font-family:"EB Garamond", Georgia, serif; font-size:18px; line-height:1.4; min-height:100vh; -webkit-tap-highlight-color:transparent; }
+h1, h2, h3, .serif { font-family:"Cormorant Garamond", Georgia, serif; font-weight:600; }
+button { font:inherit; color:inherit; cursor:pointer; }
+input, select, textarea { font:inherit; color:var(--text); background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:10px 12px; width:100%; }
+textarea { font-family:ui-monospace, Menlo, monospace; font-size:12px; min-height:100px; }
+.wrap { max-width:560px; margin:0 auto; padding:12px 14px 100px; }
+.hidden { display:none !important; }
+.top { display:flex; align-items:center; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+.top .mini { width:46px; height:56px; flex:none; border-radius:6px; overflow:hidden; border:1px solid var(--accent2); }
+.top .mini svg { width:100%; height:100%; display:block; }
+.top .who { flex:1; min-width:0; }
+.top h1 { margin:0; font-size:22px; line-height:1.05; }
+.top .lv { font-size:14px; color:var(--accent); font-style:italic; }
+.top .ink { text-align:right; }
+.top .ink b { font-family:"Cormorant Garamond", serif; font-size:24px; color:var(--accent); display:block; line-height:1; }
+.top .ink span { font-size:12px; color:var(--dim); }
+.iconbtn { background:none; border:1px solid var(--line); border-radius:50%; width:36px; height:36px; display:grid; place-items:center; flex:none; color:var(--dim); }
+.xpbar { height:3px; background:var(--line); margin-top:6px; border-radius:2px; overflow:hidden; }
+.xpbar i { display:block; height:100%; background:var(--accent); transition:width .8s; }
+.archivist { margin:14px 2px 4px; font-style:italic; color:var(--dim); }
+.archivist::before { content:"The Archivist: "; font-style:normal; color:var(--accent2); font-variant:small-caps; letter-spacing:.04em; }
+.label { font-variant:small-caps; letter-spacing:.06em; color:var(--dim); font-size:15px; margin:18px 2px 8px; display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.label small { font-variant:normal; letter-spacing:0; font-size:13px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+.btn { background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:9px 14px; font-size:16px; }
+.btn.primary { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600; }
+.btn.full { width:100%; margin-top:8px; }
+.btn.small { padding:5px 10px; font-size:14px; }
+.btn:disabled { opacity:.4; }
+.row { display:flex; gap:8px; align-items:center; }
+.row > * { flex:1; }
+.muted { color:var(--dim); font-size:15px; }
+.tiny { font-size:13px; color:var(--dim); }
+
+/* rituals */
+.rit { display:flex; align-items:center; gap:12px; padding:10px 4px; border-top:1px solid var(--line); }
+.rit:first-child { border-top:none; }
+.tick { width:30px; height:30px; flex:none; border-radius:50%; border:1.5px solid var(--accent2); background:none; display:grid; place-items:center; color:var(--bg); font-size:16px; }
+.rit.done .tick { background:var(--accent); border-color:var(--accent); }
+.rit .nm { flex:1; }
+.rit.done .nm { color:var(--dim); }
+.rit .nm small { display:block; font-size:13px; color:var(--dim); }
+.flame { font-size:13px; color:var(--accent); white-space:nowrap; }
+.statdot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+details summary { cursor:pointer; color:var(--dim); font-variant:small-caps; letter-spacing:.05em; padding:8px 2px; list-style:none; }
+details summary::-webkit-details-marker { display:none; }
+
+/* focus */
+.wing { margin:12px 2px 6px; font-size:13px; color:var(--dim); font-variant:small-caps; letter-spacing:.06em; }
+.acts { display:flex; flex-wrap:wrap; gap:6px; }
+.act { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:6px 12px; font-size:15px; position:relative; }
+.act.sel { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+.act .lo { background:var(--r); color:#1a0f08; border-radius:8px; font-size:11px; padding:0 5px; margin-left:5px; font-weight:600; }
+.durs { display:flex; gap:6px; }
+.dur { flex:1; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:9px 2px; text-align:center; font-size:16px; }
+.dur.sel { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600; }
+.begin { display:block; width:100%; margin-top:12px; padding:15px; border-radius:12px; border:none; background:var(--accent); color:var(--bg); font-family:"Cormorant Garamond", serif; font-size:23px; font-weight:700; }
+.chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.chip { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:3px 10px; font-size:14px; color:var(--dim); }
+.chip b { color:var(--text); font-weight:600; }
+.chip.hot { border-color:var(--accent); color:var(--accent); }
+
+/* fellow */
+.fellow { display:flex; gap:14px; align-items:flex-start; }
+.portrait { width:150px; flex:none; border-radius:10px; overflow:hidden; border:1px solid var(--accent2); }
+.portrait svg { display:block; width:100%; }
+.stat { margin-bottom:9px; }
+.stat .h { display:flex; justify-content:space-between; font-size:15px; }
+.stat .h b { font-weight:600; }
+.bar { height:6px; background:var(--bg2); border-radius:3px; overflow:hidden; border:1px solid var(--line); position:relative; }
+.bar i { display:block; height:100%; background:var(--accent); transition:width .8s; }
+.cond { height:3px; margin-top:2px; border-radius:2px; background:var(--line); overflow:hidden; }
+.cond i { display:block; height:100%; background:var(--ok); }
+.cond.low i { background:var(--r); }
+.slots { display:grid; grid-template-columns:repeat(2, 1fr); gap:6px; }
+.slot { background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:14px; text-align:left; }
+.slot small { display:block; color:var(--dim); font-size:12px; font-variant:small-caps; letter-spacing:.05em; }
+.gem { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--c); margin-right:5px; vertical-align:middle; }
+.gem.u { background:var(--u); } .gem.r { background:var(--r); box-shadow:0 0 6px var(--r); }
+.goal { margin-bottom:10px; }
+.goal .h { display:flex; justify-content:space-between; gap:8px; }
+.goal .t { color:var(--accent); font-style:italic; font-size:15px; }
+
+/* tree */
+.branch h3 { margin:0 0 6px; font-size:20px; }
+.node { display:flex; gap:10px; align-items:center; padding:9px 0; border-top:1px solid var(--line); }
+.node .nm { flex:1; }
+.node .nm small { display:block; color:var(--dim); font-size:13px; }
+.node.got .nm b { color:var(--accent); }
+.node.locked { opacity:.45; }
+.node .seal { width:28px; height:28px; border-radius:50%; border:1.5px solid var(--accent2); display:grid; place-items:center; font-size:12px; color:var(--accent); flex:none; font-family:"Cormorant Garamond", serif; font-weight:700; }
+.node.got .seal { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+
+/* achievements */
+.achs { display:grid; grid-template-columns:repeat(2, 1fr); gap:6px; }
+.ach { background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; }
+.ach b { display:block; font-family:"Cormorant Garamond", serif; font-size:17px; }
+.ach.got { border-color:var(--accent2); }
+.ach.got b { color:var(--accent); }
+.ach:not(.got) { opacity:.55; }
+
+/* ledger */
+.lrow { display:grid; grid-template-columns:118px 1fr 58px; gap:8px; align-items:center; font-size:15px; padding:3px 0; }
+.lrow .b { height:10px; background:var(--accent); border-radius:2px; min-width:2px; }
+.lrow .v { text-align:right; color:var(--dim); font-size:14px; }
+.ev { display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-top:1px solid var(--line); font-size:15px; }
+.ev small { display:block; color:var(--dim); font-size:12.5px; }
+.ev .ink { color:var(--accent); white-space:nowrap; }
+
+nav.tabs { position:fixed; bottom:0; left:0; right:0; background:var(--bg2); border-top:1px solid var(--line); display:flex; justify-content:center; z-index:5; }
+nav.tabs .in { display:flex; max-width:560px; width:100%; }
+nav.tabs button { flex:1; background:none; border:none; padding:9px 2px 11px; color:var(--dim); font-size:14px; font-variant:small-caps; letter-spacing:.04em; display:flex; flex-direction:column; align-items:center; gap:2px; }
+nav.tabs svg { width:22px; height:22px; }
+nav.tabs button.on { color:var(--accent); }
+
+.over { position:fixed; inset:0; background:var(--bg); z-index:20; overflow-y:auto; }
+.over .wrap { padding-bottom:40px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.run-act { margin-top:22px; font-size:15px; font-variant:small-caps; letter-spacing:.08em; color:var(--dim); }
+.run-name { font-size:30px; margin:2px 0 0; }
+.face { width:270px; height:270px; margin:16px auto 6px; }
+.face svg { width:100%; height:100%; }
+.time { font-family:"Cormorant Garamond", serif; font-size:62px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; }
+.paused .face, .paused .time { opacity:.45; }
+.run-btns { display:flex; gap:10px; margin-top:20px; width:100%; }
+.run-btns .btn { flex:1; padding:14px 6px; font-size:17px; }
+.say { font-style:italic; color:var(--dim); margin:12px 4px; }
+.fl { animation:flick 1.6s infinite alternate ease-in-out; transform-origin:50% 100%; transform-box:fill-box; }
+@keyframes flick { 0% { transform:scale(1,1) rotate(-2deg); } 50% { transform:scale(.92,1.08) rotate(2deg); } 100% { transform:scale(1.04,.94) rotate(-1deg); } }
+.reward h2 { font-size:22px; margin:28px 0 0; color:var(--dim); font-weight:500; font-style:italic; }
+.gain { font-family:"Cormorant Garamond", serif; font-size:72px; color:var(--accent); line-height:1; margin-top:6px; font-weight:700; }
+.gain small { font-size:22px; color:var(--dim); font-weight:500; }
+.reward .card { width:100%; text-align:left; }
+.event { border-color:var(--accent); }
+.event .k { font-variant:small-caps; letter-spacing:.06em; color:var(--accent); font-size:14px; }
+.event .h { font-family:"Cormorant Garamond", serif; font-size:21px; font-weight:600; }
+.sheet { position:fixed; inset:0; background:#0009; z-index:30; display:flex; align-items:flex-end; justify-content:center; }
+.sheet-body { background:var(--bg2); border:1px solid var(--line); border-bottom:none; border-radius:16px 16px 0 0; width:100%; max-width:560px; max-height:88vh; overflow-y:auto; padding:16px 16px 28px; }
+.sheet-body h3 { margin:0 0 8px; font-size:23px; }
+.sheet-body h4 { margin:16px 0 6px; font-variant:small-caps; letter-spacing:.05em; color:var(--dim); font-weight:500; font-size:16px; }
+.field { margin:8px 0; }
+.field label { display:block; font-size:14px; color:var(--dim); margin-bottom:3px; }
+.toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%); background:var(--card2); border:1px solid var(--accent2); border-radius:10px; padding:10px 16px; z-index:40; font-style:italic; max-width:90vw; box-shadow:0 6px 24px #0008; text-align:center; }
+.sync { font-size:12px; color:var(--dim); text-align:center; margin-top:16px; }
+body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.07; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .9 0 0 0 0 .7 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+body::after { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; background:radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%), radial-gradient(ellipse at 50% 120%, #0008, transparent 60%); }
+.wrap { position:relative; z-index:1; }
+.label::before { content:"✦"; color:var(--accent2); font-variant:normal; margin-right:6px; font-size:11px; }
+.label { justify-content:flex-start; } .label small { margin-left:auto; }
+.omen { display:flex; gap:12px; align-items:center; }
+.tarot { width:56px; height:90px; flex:none; border:1.5px solid var(--accent); border-radius:5px; background:linear-gradient(160deg, var(--card2), var(--bg2)); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:5px 2px; font-family:"Cormorant Garamond", serif; color:var(--accent); box-shadow:inset 0 0 0 3px var(--bg2), inset 0 0 0 4px var(--accent2); }
+.tarot .n { font-size:13px; font-weight:700; } .tarot .g { font-size:24px; line-height:1; } .tarot .s { font-size:7.5px; letter-spacing:.03em; text-transform:uppercase; }
+.glyph { font-family:"Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols 2", serif; color:var(--accent); margin-right:4px; }
+.ach { position:relative; border-radius:6px; box-shadow:inset 0 0 0 3px var(--bg2), inset 0 0 0 4px var(--line); padding:12px 12px 10px; }
+.ach.got { box-shadow:inset 0 0 0 3px var(--bg2), inset 0 0 0 4px var(--accent2); }
+.ach .num { position:absolute; top:6px; right:9px; font-family:"Cormorant Garamond", serif; font-size:12px; color:var(--accent2); }
+.ach.sealed b { color:var(--dim); font-style:italic; }
+.orn { text-align:center; color:var(--accent2); letter-spacing:.7em; font-size:12px; margin:16px 0 0; }
+.loading { text-align:center; padding:80px 20px; color:var(--dim); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mini" id="h-mini"></div>
+    <div class="who"><h1>The Institute</h1><div class="lv" id="h-lv"></div></div>
+    <div class="ink"><b id="h-ink">0</b><span>ink</span></div>
+    <button class="iconbtn" data-act="settings" aria-label="Settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+  </header>
+  <div class="xpbar"><i id="h-xp"></i></div>
+  <div id="view-loading" class="loading">Unlocking the front door...</div>
+  <main id="view-today" class="hidden"></main>
+  <main id="view-focus" class="hidden"></main>
+  <main id="view-fellow" class="hidden"></main>
+  <main id="view-tree" class="hidden"></main>
+  <main id="view-ledger" class="hidden"></main>
+  <div class="orn">✦ ☾ ✦</div>
+  <div class="sync" id="sync"></div>
+</div>
+<nav class="tabs"><div class="in">
+  <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg>Today</button>
+  <button data-tab="focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M10 2h4"/></svg>Focus</button>
+  <button data-tab="fellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg>Fellow</button>
+  <button data-tab="tree"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="4" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="20" r="2"/><circle cx="18" cy="20" r="2"/><path d="M11 5.5L7 10.5M13 5.5l4 5M6 14v4M18 14v4"/></svg>Tree</button>
+  <button data-tab="ledger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3h11a2 2 0 0 1 2 2v16H8a2 2 0 0 1-2-2zM6 19a2 2 0 0 1 2-2h11M10 7h6M10 11h6"/></svg>Ledger</button>
+</div></nav>
+<div class="over hidden" id="run"></div>
+<div class="over hidden" id="reward"></div>
+<div class="sheet hidden" id="sheet"><div class="sheet-body" id="sheet-body"></div></div>
+
+<script>
+const GENERIC = {
+  activities: [['Deep work', 'Work', 'Craft', true], ['Admin and email', 'Work', 'Order', true], ['Study', 'Scholarship', 'Scholarship', true], ['Exercise', 'Body', 'Vigour', true], ['Personal care', 'Body', 'Vigour', true], ['Chores', 'Home', 'Order', true], ['Shopping', 'Home', 'Order', true], ['Family time', 'People', 'Hearth', true], ['Hobby', 'Delight', 'Wonder', true], ['Reading', 'Delight', 'Wonder', true]],
+  rituals: [['Teeth', 'Vigour', 'Daily', '', true], ['Shower', 'Vigour', 'Every N days', 2, true], ['Exercise', 'Vigour', 'Times per week', 3, true], ['Desk cleared', 'Order', 'Weekdays', '', true], ['Weekly review', 'Order', 'Weekly', '', true]],
+  goals: []
+};
+const STAT_GLYPH = {craft: '☿', scholarship: '♄', order: '⚖', vigour: '♂', hearth: '♀', wonder: '♆', all: '☉'};
+
+/* ============ fixed content ============ */
+const STATS = {
+  craft: {n: 'Craft', d: 'Clinical and professional work', c: '#c9a45c'},
+  scholarship: {n: 'Scholarship', d: 'Research, writing, reading, teaching', c: '#7fa6c9'},
+  order: {n: 'Order', d: 'Chores, shopping, money, admin', c: '#a0a37a'},
+  vigour: {n: 'Vigour', d: 'Body and personal care. Boosts everything a little.', c: '#cf6a55'},
+  hearth: {n: 'Hearth', d: 'Rebecca and the girls', c: '#e09a4f'},
+  wonder: {n: 'Wonder', d: 'Fun, cooking, gardening, the sky. Improves finds.', c: '#9b86c9'}
+};
+const SK = Object.keys(STATS);
+const SCHED = {daily: 'Daily', weekdays: 'Weekdays', everyn: 'Every N days', perweek: 'Times per week', weekly: 'Weekly', weekends: 'Weekends', monthly: 'Monthly', anytime: 'Anytime'};
+const RIT_INK = {daily: 10, weekdays: 10, everyn: 15, perweek: 20, weekly: 40, weekends: 40, monthly: 60, anytime: 20};
+const SLOTS = {head: 'Head', eyes: 'Eyes', neck: 'Neck', body: 'Coat', hand: 'In hand', satchel: 'Satchel', familiar: 'Familiar'};
+const GEAR = [
+  ['cap', 'Tweed flat cap', 'head', 'c', {order: 1}], ['brim', 'Wide-brimmed hat', 'head', 'u', {wonder: 2}], ['hood', "Archer's hood", 'head', 'r', {vigour: 3}],
+  ['specs', 'Round spectacles', 'eyes', 'c', {scholarship: 1}], ['brass', 'Brass-rimmed spectacles', 'eyes', 'u', {scholarship: 2}], ['loupe', "Astronomer's loupe", 'eyes', 'r', {wonder: 3}],
+  ['green', 'Bottle-green wool scarf', 'neck', 'c', {hearth: 1}], ['oxscarf', 'Oxblood scarf', 'neck', 'u', {hearth: 2}], ['fork', 'Silver tuning-fork pendant', 'neck', 'r', {craft: 3}],
+  ['cord', 'Corduroy jacket', 'body', 'c', {craft: 1}], ['wax', 'Waxed field coat', 'body', 'u', {vigour: 2}], ['gown', 'Academic gown', 'body', 'r', {scholarship: 3}],
+  ['pen', 'Fountain pen', 'hand', 'c', {craft: 1}], ['trowel', 'Trowel', 'hand', 'c', {wonder: 1}], ['bow', 'Recurve bow', 'hand', 'u', {vigour: 2}], ['dumbbell', 'Iron dumbbell', 'hand', 'u', {vigour: 2}], ['mirror', 'Laryngeal mirror', 'hand', 'r', {craft: 3}],
+  ['canvas', 'Canvas satchel', 'satchel', 'c', {order: 1}], ['leather', 'Leather satchel', 'satchel', 'u', {order: 2}], ['docbag', "Doctor's bag", 'satchel', 'r', {craft: 2, order: 1}],
+  ['raven', 'Raven', 'familiar', 'u', {wonder: 2}], ['cat', 'Black cat', 'familiar', 'u', {hearth: 2}], ['owl', 'Barn owl', 'familiar', 'r', {scholarship: 3}]
+].map(([id, n, slot, r, b]) => ({id, n, slot, r, b}));
+const GEAR_BY = Object.fromEntries(GEAR.map(g => [g.id, g]));
+const PRICE = {c: 300, u: 900, r: 2500};
+const RAR = {c: 'Common', u: 'Uncommon', r: 'Rare'};
+
+const TREE = [
+  {b: 'Discipline', d: 'The focus timer', nodes: [
+    {id: 'd1', n: 'Momentum', d: 'Start again within 15 minutes of finishing: +10% per session, up to +30%.', cost: 150},
+    {id: 'd2', n: 'Deep work', d: 'Sessions of 45 minutes or more earn +15%.', cost: 500, req: ['d1']},
+    {id: 'd3', n: 'Loose ends', d: 'Mark unfinished work after a session and tie it off later. A clean day pays +40.', cost: 500, req: ['d1']},
+    {id: 'd4', n: 'Unbroken', d: 'Momentum can build to +60%.', cost: 2500, req: ['d2']},
+    {id: 'd5', n: 'The long hour', d: 'Sessions of 90 minutes or more earn +25% on top.', cost: 8000, req: ['d4']}]},
+  {b: 'Constitution', d: 'Rituals and the body', nodes: [
+    {id: 'c1', n: 'Steady hand', d: 'Rituals earn +20%.', cost: 150},
+    {id: 'c2', n: 'Grace', d: 'Streaks forgive two missed periods in a row, not one.', cost: 500, req: ['c1']},
+    {id: 'c3', n: 'Full set', d: 'Tick every ritual due today for +50.', cost: 1500, req: ['c1']},
+    {id: 'c4', n: 'Iron will', d: 'Condition never falls below 65%.', cost: 1500, req: ['c2']},
+    {id: 'c5', n: 'Second nature', d: 'Rituals on a streak of 30 or more earn double.', cost: 8000, req: ['c3', 'c4']}]},
+  {b: 'Hearth', d: 'Rebecca and the girls', nodes: [
+    {id: 'h1', n: 'Fireside', d: 'Hearth activities and rituals earn +25%.', cost: 300},
+    {id: 'h2', n: 'Weekend rites', d: 'Everything Hearth earns double at weekends.', cost: 1500, req: ['h1']},
+    {id: 'h3', n: 'Family portrait', d: 'Your portrait sits by a lit hearth.', cost: 4000, req: ['h2']}]},
+  {b: 'Scholarship', d: 'Research on the side', nodes: [
+    {id: 's1', n: 'Marginalia', d: 'Scholarship activities and rituals earn +25%.', cost: 300},
+    {id: 's2', n: 'Side project', d: 'Scholarship outside 9 to 5 on weekdays earns +25% more.', cost: 1500, req: ['s1']},
+    {id: 's3', n: 'Institute press', d: 'All pursuits progress 25% faster.', cost: 4000, req: ['s2']}]},
+  {b: 'Wonder', d: 'Finds and curiosities', nodes: [
+    {id: 'w1', n: 'Cabinet of curiosities', d: 'Gear turns up 50% more often.', cost: 300},
+    {id: 'w2', n: 'Night sky', d: 'Unlocks the Midnight theme.', cost: 1000, req: ['w1']},
+    {id: 'w3', n: "Curator's eye", d: 'Rare finds twice as likely.', cost: 4000, req: ['w1']}]},
+  {b: 'Outfitter', d: 'Gear and appearance', nodes: [
+    {id: 'o1', n: 'Tailor', d: 'Opens the Outfitter: buy gear with ink.', cost: 400},
+    {id: 'o2', n: 'Familiar', d: 'A companion may join you. Opens the familiar slot.', cost: 2000, req: ['o1']},
+    {id: 'o3', n: 'Fine tailoring', d: 'Gear stat bonuses +50%.', cost: 6000, req: ['o2']}]}
+];
+const NODE = {}; TREE.forEach(B => B.nodes.forEach(n => { NODE[n.id] = {...n, branch: B.b}; }));
+
+const ACH = [
+  ['first', 'Matriculation', 'Finish your first focus session', s => s.c.sessions >= 1, 25],
+  ['tick', 'Creature of habit', 'Tick your first ritual', s => s.c.rituals >= 1, 25],
+  ['deed', 'Deeds, not words', 'Log your first deed', s => s.c.deeds >= 1, 25],
+  ['set', 'The full set', 'Tick every ritual due in one day', s => s.c.fullDays >= 1, 100],
+  ['set10', 'Ten full sets', 'Every ritual due, ten days', s => s.c.fullDays >= 10, 400],
+  ['h10', 'Ten hours', '10 hours of focus', s => s.c.focusMin >= 600, 150, 'oxblood'],
+  ['h100', 'A hundred hours', '100 hours of focus', s => s.c.focusMin >= 6000, 800],
+  ['h500', 'Five hundred hours', '500 hours of focus', s => s.c.focusMin >= 30000, 3000],
+  ['h1000', 'A thousand hours', '1000 hours of focus', s => s.c.focusMin >= 60000, 8000],
+  ['deep', 'The deep end', 'A single session of 60 minutes', s => s.c.longest >= 60, 100],
+  ['st7', 'A week unbroken', 'Any ritual streak of 7', s => s.c.bestStreak >= 7, 100],
+  ['st30', 'A month unbroken', 'Any ritual streak of 30', s => s.c.bestStreak >= 30, 600, 'verdigris'],
+  ['st100', 'A hundred unbroken', 'Any ritual streak of 100', s => s.c.bestStreak >= 100, 3000],
+  ['l5', 'Fellow, fifth grade', 'Reach Fellow level 5', s => fellowLevel(s.xp) >= 5, 150],
+  ['l10', 'Fellow, tenth grade', 'Reach Fellow level 10', s => fellowLevel(s.xp) >= 10, 500],
+  ['l25', 'Senior Fellow', 'Reach Fellow level 25', s => fellowLevel(s.xp) >= 25, 2500, 'gilt'],
+  ['l50', 'Emeritus', 'Reach Fellow level 50', s => fellowLevel(s.xp) >= 50, 10000],
+  ['t1', 'First branch', 'Unlock a node on the tree', s => Object.keys(s.tree).length >= 1, 50],
+  ['t10', 'Well rooted', 'Unlock 10 nodes', s => Object.keys(s.tree).length >= 10, 1000],
+  ['g1', 'Kitted out', 'Find or buy your first gear', s => Object.keys(s.gear.owned).length >= 1, 50],
+  ['g10', 'A full wardrobe', 'Own 10 pieces of gear', s => Object.keys(s.gear.owned).length >= 10, 800],
+  ['gr', 'A rare find', 'Own a rare piece of gear', s => Object.keys(s.gear.owned).some(k => GEAR_BY[k] && GEAR_BY[k].r === 'r'), 300],
+  ['hearth25', 'Keeper of the flame', '25 Hearth logs', s => (s.c.byStat.hearth || 0) >= 25, 300],
+  ['hearth100', 'The warmest room', '100 Hearth logs', s => (s.c.byStat.hearth || 0) >= 100, 1500],
+  ['vig50', 'Body and soul', '50 Vigour logs', s => (s.c.byStat.vigour || 0) >= 50, 300],
+  ['train36', 'Twelve weeks under the bar', 'Tick Training 36 times', s => ritCountByName(s, 'training') >= 36, 1000],
+  ['arch10', 'Ten ends shot', 'Archery logged 10 times', s => nameCount(s, 'archery') >= 10, 400],
+  ['review12', 'A quarter reviewed', '12 weekly reviews', s => ritCountByName(s, 'weekly review') >= 12, 600],
+  ['schol50', 'Fifty hours on the side', '50 hours of Scholarship focus', s => (s.c.focusByStat.scholarship || 0) >= 3000, 1500],
+  ['clean', 'A clean day', 'Tie off every loose end in a day', s => s.c.cleanDays >= 1, 150],
+  ['poly5', 'Polymath', 'Every stat at level 5', s => SK.every(k => statLevelS(s, k) >= 5), 500],
+  ['poly20', 'Renaissance Fellow', 'Every stat at level 20', s => SK.every(k => statLevelS(s, k) >= 20), 5000]
+].map(([id, n, d, test, reward, theme]) => ({id, n, d, test, reward, theme}));
+
+const TITLES = ['Visitor', 'Reader', 'Junior Fellow', 'Fellow', 'Research Fellow', 'Senior Fellow', 'Keeper', 'Reader in Curiosities', 'Professor', 'Dean', 'Provost', 'Director'];
+const PURSUIT = ['Begun', 'Practising', 'Steady', 'Capable', 'Accomplished', 'Expert', 'Master', 'Luminary'];
+const THEMES = {ink: 'Ink and walnut', oxblood: 'Oxblood', verdigris: 'Verdigris', midnight: 'Midnight', gilt: 'Gilt'};
+const FACES = {ring: 'Brass ring', candle: 'Candle', orrery: 'Orrery'};
+const LINES = {
+  morning: ['Good morning. The lamps are lit. What is due today is listed below; start with the easiest.', 'Morning, Fellow. Draw back the curtains; the card of the day is waiting.', 'Morning. One tick is enough to get the day moving.', 'The porters have unlocked the east wing. Teeth first, then the world.'],
+  afternoon: ['Afternoon. A focus session now pays the same as one this morning.', 'Good afternoon. The day is not over until the ledger says so.', 'The tea trolley has been and gone. Back to it?'],
+  evening: ['Evening. Time to look over the list: what got done?', 'The candles are lit in the reading room. Be generous with the ticks.', 'The building settles. Tick what you did, and be generous with yourself.', 'Evening. The Hearth is lit, if anyone wants it.'],
+  late: ['The candles are low. A last look at the list, then the day is closed.', 'The house is quiet and the lamps are low. The ledger is open if you need it.'],
+  moon: ['The moon is full. The Institute keeps a few secrets for nights like this.', 'A full moon over Ayrshire. Something in the archive stirs.'],
+  bad: ['A slow day still has a first step. Pick the smallest thing on the list.', 'No judgement here. One tick and the day has turned.'],
+  finish: ['Entered in the ledger. Neatly, for once.', 'That counts. It all counts.', 'Time well spent, and written down to prove it.', 'The ink is still wet on that one.'],
+  stop: ['Stopped at {min} minutes. That still goes in the ledger.'],
+  tick: ['Ticked.', 'Noted.', 'Good.', 'Another one.', 'The ledger approves.'],
+  stat: {craft: 'The Consulting Rooms are quieter for that.', scholarship: 'A page further. Fellowships are built from pages.', order: 'Order restored, briefly. Enjoy it.', vigour: 'Iron and oak. Your coat fits a little differently.', hearth: 'Of everything in the ledger, this matters most.', wonder: 'Rest is research too.'}
+};
+
+/* ============ utilities ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const z2 = n => String(n).padStart(2, '0');
+const ymd = (d = new Date()) => `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(d.getDate())}`;
+const parseYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const daysBetween = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 864e5);
+const weekStart = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay() + 6) % 7; return ymd(addDays(x, -w)); };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function roman(n) { n = Math.floor(n); if (n <= 0) return ''; const t = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]; let o = ''; for (const [v, r] of t) while (n >= v) { o += r; n -= v; } return o; }
+const fmtMin = m => { m = Math.round(m); if (m < 60) return `${m}m`; return `${Math.floor(m / 60)}h ${z2(m % 60)}m`; };
+const fmtClock = ms => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${z2(m)}:${z2(x)}` : `${z2(m)}:${z2(x)}`; };
+const num = n => Math.round(n).toLocaleString('en-GB');
+const slug = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const fill = (t, o) => t.replace(/\{(\w+)\}/g, (_, k) => o[k] != null ? o[k] : '');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const truthy = v => !(v === false || /^(false|no|0|n)$/i.test(String(v).trim()));
+
+/* ============ config ============ */
+let CFG = {activities: [], rituals: [], goals: []};
+function statKey(s) { const k = String(s || '').toLowerCase().trim(); return STATS[k] ? k : 'order'; }
+function schedKey(s) {
+  const t = String(s || '').toLowerCase();
+  if (t.includes('weekday')) return 'weekdays'; if (t.includes('weekend')) return 'weekends';
+  if (t.includes('every')) return 'everyn'; if (t.includes('times') || t.includes('per week')) return 'perweek';
+  if (t.includes('week')) return 'weekly'; if (t.includes('month')) return 'monthly';
+  if (t.includes('any') || t.includes('whenever')) return 'anytime'; return 'daily';
+}
+function parseConfig(raw) {
+  const acts = (raw.activities || []).filter(r => r[0] && truthy(r[3] == null ? true : r[3])).map(r => ({id: 'a:' + slug(r[0]), name: String(r[0]).trim(), wing: String(r[1] || 'Other').trim(), stat: statKey(r[2])}));
+  const rits = (raw.rituals || []).filter(r => r[0] && truthy(r[4] == null ? true : r[4])).map(r => { const s = schedKey(r[2]); return {id: 'r:' + slug(r[0]), name: String(r[0]).trim(), stat: statKey(r[1]), sched: s, n: Math.max(1, Number(r[3]) || (s === 'everyn' ? 2 : s === 'perweek' ? 3 : 1))}; });
+  const goals = (raw.goals || []).filter(r => r[0] && truthy(r[2] == null ? true : r[2])).map(r => ({id: 'g:' + slug(r[0]), name: String(r[0]).trim(), links: String(r[1] || '').split(',').map(x => slug(x)).filter(Boolean)}));
+  return {activities: acts, rituals: rits, goals};
+}
+const actById = id => CFG.activities.find(a => a.id === id);
+const ritById = id => CFG.rituals.find(r => r.id === id);
+
+/* ============ state ============ */
+function blank() {
+  return {
+    v: 3, created: Date.now(), updatedAt: 0, ink: 0, xp: 0,
+    stat: Object.fromEntries(SK.map(k => [k, {xp: 0, last: ''}])),
+    rit: {}, ritCount: {}, actMin: {}, actCount: {}, actDeed: {}, days: {}, tree: {}, gear: {owned: {}, eq: {}}, ach: {}, loose: {},
+    c: {sessions: 0, focusMin: 0, deeds: 0, rituals: 0, longest: 0, fullDays: 0, bestStreak: 0, cleanDays: 0, byStat: {}, focusByStat: {}, early: 0, late: 0, maxMom: 1, favoured: 0, fullMoon: 0, prodigal: 0},
+    marks: {hw: [], seasons: {}, lastOpen: ''},
+    fullDays: [], cleanDays: [], ties: {}, momentum: 1, lastEnd: 0, active: null, recent: [], themes: ['ink'],
+    settings: {sound: true, face: 'ring', theme: 'ink', dur: 25, act: '', name: 'The Fellow', look: {skin: 'light', hair: 'brown', style: 'short', beard: 'stubble'}},
+    seenIntro: false
+  };
+}
+function normalise(o) {
+  const b = blank(); o = Object.assign(b, o || {});
+  for (const k of ['stat', 'rit', 'ritCount', 'actMin', 'actCount', 'actDeed', 'days', 'tree', 'ach', 'loose', 'ties']) if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {};
+  SK.forEach(k => { if (!o.stat[k]) o.stat[k] = {xp: 0, last: ''}; });
+  o.gear = Object.assign({owned: {}, eq: {}}, o.gear || {});
+  o.c = Object.assign(blank().c, o.c || {}); o.c.byStat = o.c.byStat || {}; o.c.focusByStat = o.c.focusByStat || {};
+  o.settings = Object.assign(blank().settings, o.settings || {}); o.settings.look = Object.assign(blank().settings.look, o.settings.look || {});
+  o.marks = Object.assign({hw: [], seasons: {}, lastOpen: ''}, o.marks || {}); if (!Array.isArray(o.marks.hw)) o.marks.hw = []; if (!o.marks.seasons || typeof o.marks.seasons !== 'object') o.marks.seasons = {};
+  for (const k of ['fullDays', 'cleanDays', 'recent', 'themes']) if (!Array.isArray(o[k])) o[k] = k === 'themes' ? ['ink'] : [];
+  return o;
+}
+let S = blank();
+
+/* ============ storage: this device first, then your Google Sheet ============ */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage full or blocked */ } }
+};
+let CONN = LS.get('institute-conn', null);
+let pendingLogs = LS.get('institute-queue', []), syncTimer = null, syncing = false, sheetUrl = LS.get('institute-sheeturl', '');
+const connected = () => !!(CONN && CONN.url && CONN.key);
+function remote(action, extra) {
+  return fetch(CONN.url, {method: 'POST', body: JSON.stringify(Object.assign({key: CONN.key, action}, extra || {}))})
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status + '.'); return r.text(); })
+    .then(t => { let j; try { j = JSON.parse(t); } catch (e) { throw new Error('The Sheet did not answer. Check the deployment allows Anyone.'); } if (j.error) throw new Error(j.error); return j; });
+}
+function parseConn(code) {
+  const str = String(code || '').trim(), i = str.lastIndexOf('|'); if (i < 0) return null;
+  const url = str.slice(0, i).trim(), key = str.slice(i + 1).trim();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url) || key.length < 16) return null;
+  return {url, key};
+}
+function setSync(t) { $('#sync').textContent = t; }
+function cacheLocal() { LS.set('institute-state', S); }
+function save(row) {
+  S.updatedAt = Date.now(); cacheLocal();
+  if (row) { pendingLogs.push(row); LS.set('institute-queue', pendingLogs); }
+  clearTimeout(syncTimer); syncTimer = setTimeout(flush, 1200);
+}
+function flush() {
+  clearTimeout(syncTimer); syncTimer = null;
+  if (!connected()) { setSync('Saved on this device. Connect your Sheet in Settings.'); return; }
+  if (syncing) { syncTimer = setTimeout(flush, 800); return; }
+  if (navigator.onLine === false) { setSync('Offline. Saved on this device; it will sync when you have signal.'); return; }
+  syncing = true;
+  const logs = pendingLogs.slice();
+  remote('sync', {state: JSON.stringify(S), logs}).then(r => {
+    syncing = false; pendingLogs.splice(0, logs.length); LS.set('institute-queue', pendingLogs);
+    if (r.conflict && r.state) { const o = normalise(JSON.parse(r.state)); if (o.updatedAt > S.updatedAt) { S = o; cacheLocal(); renderAll(); toast('Updated from your other device.'); } }
+    setSync('Saved to your Google Sheet.');
+    if (pendingLogs.length) flush();
+  }, err => { syncing = false; setSync('Saved on this device. Sheet sync failed: ' + err.message + ' Retrying shortly.'); syncTimer = setTimeout(flush, 15000); });
+}
+window.addEventListener('online', () => flush());
+function logRow(type, item, minutes, ink, stat, note) { return [new Date().toISOString(), type, item, minutes || '', Math.round(ink || 0), stat ? STATS[stat].n : '', note || '']; }
+
+/* ============ derived numbers ============ */
+const fellowNeed = L => Math.round(120 * Math.pow(L, 1.9));
+function fellowLevel(xp) { let L = 1, acc = 0; while (acc + fellowNeed(L) <= xp) { acc += fellowNeed(L); L++; } return L; }
+function fellowProgress(xp) { let L = 1, acc = 0; while (acc + fellowNeed(L) <= xp) { acc += fellowNeed(L); L++; } return {L, into: xp - acc, need: fellowNeed(L)}; }
+const titleFor = L => TITLES[Math.min(TITLES.length - 1, Math.floor((L - 1) / 5))];
+const statLevelS = (s, k) => Math.floor(Math.sqrt(((s.stat[k] && s.stat[k].xp) || 0) / 30));
+const statLevel = k => statLevelS(S, k);
+function statProg(k) { const xp = S.stat[k].xp, L = statLevel(k), lo = 30 * L * L, hi = 30 * (L + 1) * (L + 1); return (xp - lo) / (hi - lo); }
+function cond(k) {
+  const last = S.stat[k].last; if (!last) return 1;
+  const d = daysBetween(last, ymd()), floor = S.tree.c4 ? .65 : .5;
+  return d <= 3 ? 1 : Math.max(floor, 1 - .05 * (d - 3));
+}
+function gearBonus(k) { let b = 0; for (const id of Object.values(S.gear.eq)) { const g = GEAR_BY[id]; if (g && g.b[k]) b += g.b[k]; } return b * (S.tree.o3 ? 1.5 : 1); }
+const effStat = k => statLevel(k) * cond(k) + gearBonus(k);
+function inkMult(k) { return (1 + .01 * effStat(k)) * (1 + .005 * effStat('vigour')) * (1 + .03 * (S.tree.e || 0)) * cardBonus(k); }
+const ritCountByName = (s, name) => Object.entries(s.ritCount).filter(([id]) => id === 'r:' + slug(name)).reduce((a, [, n]) => a + n, 0);
+const nameCount = (s, name) => ritCountByName(s, name) + (s.actCount['a:' + slug(name)] || 0);
+const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+const isHearthWeekend = (k) => k === 'hearth' && S.tree.h2 && isWeekend(new Date());
+
+/* ============ rituals ============ */
+const doneDates = id => S.rit[id] || [];
+const doneOn = (id, day) => doneDates(id).includes(day);
+function periodKey(sched, d) {
+  if (sched === 'weekly' || sched === 'perweek') return weekStart(d);
+  if (sched === 'weekends') { const x = new Date(d); const w = x.getDay(); return ymd(addDays(x, w === 0 ? -1 : 6 - w)); }
+  if (sched === 'monthly') return ymd(d).slice(0, 7);
+  return ymd(d);
+}
+function countInPeriod(r, d) { const k = periodKey(r.sched, d); return doneDates(r.id).filter(x => periodKey(r.sched, parseYmd(x)) === k && (r.sched !== 'weekends' || isWeekend(parseYmd(x)))).length; }
+function isDue(r, d = new Date()) {
+  const t = ymd(d);
+  if (doneOn(r.id, t) && r.sched !== 'perweek') return false;
+  switch (r.sched) {
+    case 'daily': return true;
+    case 'weekdays': return !isWeekend(d);
+    case 'everyn': { const ds = doneDates(r.id); if (!ds.length) return true; return daysBetween(ds[ds.length - 1], t) >= r.n; }
+    case 'perweek': return !doneOn(r.id, t) && countInPeriod(r, d) < r.n;
+    case 'weekly': case 'monthly': return countInPeriod(r, d) < 1;
+    case 'weekends': return isWeekend(d) && countInPeriod(r, d) < 1;
+    default: return false;
+  }
+}
+function streak(r) {
+  const ds = doneDates(r.id); if (!ds.length || r.sched === 'anytime') return 0;
+  const grace = S.tree.c2 ? 2 : 1, today = new Date();
+  if (r.sched === 'everyn') {
+    let n = 1; if (daysBetween(ds[ds.length - 1], ymd()) > r.n + grace) return 0;
+    for (let i = ds.length - 1; i > 0; i--) { if (daysBetween(ds[i - 1], ds[i]) <= r.n + grace) n++; else break; }
+    return n;
+  }
+  const step = d => r.sched === 'daily' || r.sched === 'weekdays' ? addDays(d, -1) : r.sched === 'monthly' ? new Date(d.getFullYear(), d.getMonth() - 1, 1) : addDays(d, -7);
+  const hit = d => r.sched === 'perweek' ? countInPeriod(r, d) >= r.n : countInPeriod(r, d) >= 1;
+  let d = new Date(today), n = 0, miss = 0, first = true, guard = 0;
+  while (guard++ < 1500) {
+    if (r.sched === 'weekdays' && isWeekend(d)) { d = step(d); continue; }
+    if (hit(d)) { n++; miss = 0; }
+    else if (!first) { miss++; if (miss > grace) break; }
+    first = false; d = step(d);
+    if (ymd(d) < ds[0] && periodKey(r.sched, d) < periodKey(r.sched, parseYmd(ds[0]))) break;
+  }
+  return n;
+}
+function dueToday() { return CFG.rituals.filter(r => isDue(r)); }
+function doneToday() { const t = ymd(); return CFG.rituals.filter(r => doneOn(r.id, t)); }
+
+/* ============ earning ============ */
+function touchStat(k, xp) {
+  S.stat[k].xp += xp; S.stat[k].last = ymd();
+  S.c.byStat[k] = (S.c.byStat[k] || 0) + 1;
+}
+function addDay(field, v) { const t = ymd(); S.days[t] = S.days[t] || {focus: 0, ink: 0, rituals: 0, deeds: 0}; S.days[t][field] = (S.days[t][field] || 0) + v; }
+function earn(amount, k) {
+  const before = fellowLevel(S.xp);
+  S.ink += amount; S.xp += amount; addDay('ink', amount);
+  return fellowLevel(S.xp) > before ? fellowLevel(S.xp) : 0;
+}
+function pushRecent(e) { S.recent.unshift(e); if (S.recent.length > 80) S.recent.length = 80; }
+function dropGear(chanceBase) {
+  let p = chanceBase * (S.tree.w1 ? 1.5 : 1) * (1 + .02 * effStat('wonder')) * (cardOfDay().name === 'Wheel of Fortune' ? 2 : 1);
+  if (Math.random() > p) return null;
+  const rp = (S.tree.w3 ? .24 : .12), roll = Math.random(), r = roll < rp ? 'r' : roll < rp + .35 ? 'u' : 'c';
+  let pool = GEAR.filter(g => g.r === r && (g.slot !== 'familiar' || S.tree.o2));
+  const fresh = pool.filter(g => !S.gear.owned[g.id]);
+  if (!fresh.length) { S.ink += {c: 60, u: 150, r: 400}[r]; return {dupe: true, r, ink: {c: 60, u: 150, r: 400}[r]}; }
+  const g = pick(fresh); S.gear.owned[g.id] = true; return g;
+}
+function checkAch() {
+  const got = [];
+  for (const a of ACH) if (!S.ach[a.id] && a.test(S)) {
+    S.ach[a.id] = ymd(); S.ink += a.reward; S.xp += a.reward;
+    if (a.theme && !S.themes.includes(a.theme)) S.themes.push(a.theme);
+    got.push(a);
+  }
+  got.forEach(a => toast(`Achievement: ${a.n}. +${a.reward} ink${a.theme ? ', new theme' : ''}.`));
+  return got;
+}
+function updateBestStreak() { for (const r of CFG.rituals) S.c.bestStreak = Math.max(S.c.bestStreak, streak(r)); }
+
+function tickRitual(id) {
+  const r = ritById(id); if (!r) return;
+  const t = ymd();
+  if (doneOn(id, t)) { untick(id); return; }
+  S.rit[id] = (S.rit[id] || []).concat(t).slice(-500);
+  S.ritCount[id] = (S.ritCount[id] || 0) + 1;
+  const st = streak(r);
+  let mult = inkMult(r.stat) * (S.tree.c1 ? 1.2 : 1);
+  if (r.stat === 'hearth' && S.tree.h1) mult *= 1.25;
+  if (r.stat === 'scholarship' && S.tree.s1) mult *= 1.25;
+  if (isHearthWeekend(r.stat)) mult *= 2;
+  if (S.tree.c5 && st >= 30) mult *= 2;
+  const streakBonus = 1 + Math.min(.5, st * .02);
+  const gain = Math.round(RIT_INK[r.sched] * mult * streakBonus);
+  touchStat(r.stat, RIT_INK[r.sched]); noteEvent(r.stat, 'ritual');
+  const lv = earn(gain, r.stat);
+  S.c.rituals++; addDay('rituals', 1);
+  let extra = '';
+  const due = CFG.rituals.filter(x => x.sched !== 'anytime' && (isDue(x) || doneOn(x.id, t)));
+  if (due.length && due.every(x => doneOn(x.id, t)) && !S.fullDays.includes(t)) {
+    S.fullDays.push(t); S.c.fullDays++;
+    if (S.tree.c3) { S.ink += 50; S.xp += 50; extra = ' Full set: +50.'; } else extra = ' Every ritual due today is done.';
+  }
+  let g = null; if (r.sched === 'weekly' || r.sched === 'weekends' || r.sched === 'monthly') g = dropGear(.1);
+  updateBestStreak();
+  pushRecent({t: Date.now(), type: 'ritual', name: r.name, ink: gain, stat: r.stat});
+  save(logRow('ritual', r.name, '', gain, r.stat, st > 1 ? `streak ${st}` : ''));
+  checkAch(); renderAll();
+  toast(`${r.name}: +${gain} ink${st > 1 ? `, streak ${st}` : ''}.${extra}${lv ? ` Fellow level ${lv}!` : ''}${g && !g.dupe ? ` Found: ${g.n}!` : ''}`);
+}
+function untick(id) {
+  const r = ritById(id), t = ymd();
+  S.rit[id] = (S.rit[id] || []).filter(x => x !== t);
+  S.ritCount[id] = Math.max(0, (S.ritCount[id] || 1) - 1);
+  const e = S.recent.find(x => x.type === 'ritual' && x.name === r.name && ymd(new Date(x.t)) === t);
+  if (e) { S.ink = Math.max(0, S.ink - e.ink); S.xp = Math.max(0, S.xp - e.ink); S.stat[r.stat].xp = Math.max(0, S.stat[r.stat].xp - RIT_INK[r.sched]); S.recent.splice(S.recent.indexOf(e), 1); }
+  S.c.rituals = Math.max(0, S.c.rituals - 1); addDay('rituals', -1);
+  save(logRow('undo', r.name, '', e ? -e.ink : 0, r.stat, 'unticked')); renderAll(); toast(`${r.name} unticked.`);
+}
+function logDeed(actId, minutes, note) {
+  const a = actById(actId); if (!a) return;
+  const m = Math.max(0, Math.round(minutes || 0));
+  let base = m ? m : 15, mult = inkMult(a.stat);
+  if (a.stat === 'hearth' && S.tree.h1) mult *= 1.25; if (a.stat === 'scholarship' && S.tree.s1) mult *= 1.25; if (isHearthWeekend(a.stat)) mult *= 2;
+  const gain = Math.round(base * mult);
+  touchStat(a.stat, base); noteEvent(a.stat, 'deed'); const lv = earn(gain, a.stat);
+  if (m) S.actMin[a.id] = (S.actMin[a.id] || 0) + m; else S.actDeed[a.id] = (S.actDeed[a.id] || 0) + 1;
+  S.actCount[a.id] = (S.actCount[a.id] || 0) + 1; S.c.deeds++; addDay('deeds', 1);
+  pushRecent({t: Date.now(), type: 'deed', name: a.name, ink: gain, stat: a.stat, min: m, note});
+  save(logRow('deed', a.name, m, gain, a.stat, note));
+  checkAch(); renderAll();
+  toast(`${a.name}: +${gain} ink. ${LINES.stat[a.stat]}${lv ? ` Fellow level ${lv}!` : ''}`);
+}
+
+/* ============ focus session ============ */
+let tickTimer = null, actx = null, wake = null;
+function audio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } return actx; }
+function chime() {
+  if (!S.settings.sound) return; const a = audio(); if (!a) return;
+  const t = a.currentTime, out = a.createGain(); out.gain.value = .3; out.connect(a.destination);
+  const tone = (f, g, d, delay) => { const o = a.createOscillator(), v = a.createGain(); o.frequency.value = f; v.gain.setValueAtTime(0, t + delay); v.gain.linearRampToValueAtTime(g, t + delay + .01); v.gain.exponentialRampToValueAtTime(.0001, t + delay + d); o.connect(v); v.connect(out); o.start(t + delay); o.stop(t + delay + d + .05); };
+  [0, .55].forEach(d => { tone(880, .6, 2.4, d); tone(2428, .18, 1.2, d); tone(4752, .06, .6, d); });
+  try { navigator.vibrate && navigator.vibrate([180, 90, 180]); } catch (e) { /* none */ }
+}
+function momentumNow() {
+  if (!S.tree.d1 || !S.lastEnd || Date.now() - S.lastEnd > 15 * 60000) return 1;
+  const cap = S.tree.d4 ? 1.6 : 1.3; return Math.min(cap, Math.round((S.momentum + .1) * 10) / 10);
+}
+const elapsed = a => (a.pauseAt || Date.now()) - a.start - (a.pausedMs || 0);
+function begin(actId, tie) {
+  audio(); const a = actById(actId); if (!a) { toast('Pick an activity first.'); return; }
+  S.settings.act = actId;
+  S.active = {act: actId, planned: S.settings.dur, start: Date.now(), pausedMs: 0, pauseAt: null, note: tie ? 'Tying off a loose end' : (($('#f-note') && $('#f-note').value.trim()) || '').slice(0, 60), tie: !!tie, mom: momentumNow(), early: new Date().getHours() < 8};
+  save();
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => { wake = w; }, () => {}); } catch (e) { /* none */ }
+  showRun();
+}
+function showRun() {
+  const A = S.active; if (!A) return; const a = actById(A.act) || {name: 'Focus', wing: ''};
+  $('#run').innerHTML = `<div class="wrap" id="run-wrap"><div class="run-act">${esc(a.wing)}</div><h2 class="run-name">${esc(a.name)}</h2><div class="muted">${esc(A.note)}</div>
+    <div class="face" id="face"></div><div class="time" id="time"></div><div class="muted" id="tsub"></div>
+    <div class="run-btns"><button class="btn" data-act="pause" id="pause-btn">Pause</button><button class="btn primary" data-act="finish">Done</button><button class="btn" data-act="stop">Stop</button></div>
+    ${A.mom > 1 ? `<p class="muted">Momentum +${Math.round((A.mom - 1) * 100)}%</p>` : ''}</div>`;
+  $('#run').classList.remove('hidden'); clearInterval(tickTimer); tickTimer = setInterval(tick, 500); tick();
+}
+function hideRun() { $('#run').classList.add('hidden'); clearInterval(tickTimer); }
+function faceSVG(frac) {
+  const f = S.settings.face, A = 'var(--accent)', L = 'var(--line)', A2 = 'var(--accent2)';
+  if (f === 'candle') { const top = 70 + (1 - frac) * 150; return `<svg viewBox="0 0 280 280"><ellipse cx="140" cy="252" rx="70" ry="10" fill="${L}"/><rect x="92" y="236" width="96" height="12" rx="4" fill="${A2}"/><rect x="112" y="${top}" width="56" height="${Math.max(6, 236 - top)}" rx="5" fill="#e9dcc0" opacity=".92"/><line x1="140" y1="${top}" x2="140" y2="${top - 10}" stroke="#333" stroke-width="2"/><g class="fl"><ellipse cx="140" cy="${top - 24}" rx="9" ry="18" fill="${A}"/><ellipse cx="140" cy="${top - 19}" rx="4" ry="9" fill="#fff6d8"/></g></svg>`; }
+  if (f === 'orrery') { const an = frac * Math.PI * 2 - Math.PI / 2, px = 140 + 104 * Math.cos(an), py = 140 + 104 * Math.sin(an), m = frac * Math.PI * 24; return `<svg viewBox="0 0 280 280"><circle cx="140" cy="140" r="104" fill="none" stroke="${L}" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="140" cy="140" r="20" fill="${A}"/><line x1="140" y1="140" x2="${px}" y2="${py}" stroke="${A2}" stroke-width="1.2"/><circle cx="${px}" cy="${py}" r="10" fill="${A2}" stroke="${A}" stroke-width="1.5"/><circle cx="${px + 18 * Math.cos(m)}" cy="${py + 18 * Math.sin(m)}" r="3.5" fill="${A}"/></svg>`; }
+  const C = 2 * Math.PI * 118; let tk = ''; for (let i = 0; i < 60; i++) { const an = i / 60 * Math.PI * 2, r1 = i % 5 ? 128 : 123; tk += `<line x1="${140 + r1 * Math.sin(an)}" y1="${140 - r1 * Math.cos(an)}" x2="${140 + 133 * Math.sin(an)}" y2="${140 - 133 * Math.cos(an)}" stroke="${L}" stroke-width="${i % 5 ? 1 : 2}"/>`; }
+  return `<svg viewBox="0 0 280 280">${tk}<circle cx="140" cy="140" r="118" fill="none" stroke="${L}" stroke-width="6"/><circle cx="140" cy="140" r="118" fill="none" stroke="${A}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - frac)}" transform="rotate(-90 140 140)"/></svg>`;
+}
+function tick() {
+  const A = S.active; if (!A) { hideRun(); return; } const w = $('#run-wrap'); if (!w) return;
+  const el = elapsed(A); w.classList.toggle('paused', !!A.pauseAt); $('#pause-btn').textContent = A.pauseAt ? 'Resume' : 'Pause';
+  if (A.planned) { const tot = A.planned * 60000, rem = tot - el; if (rem <= 0 && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(rem); $('#tsub').textContent = A.pauseAt ? 'Paused' : `of ${A.planned} minutes`; $('#face').innerHTML = faceSVG(Math.max(0, rem / tot)); }
+  else { const cap = (S.tree.d5 ? 240 : 180) * 60000; if (el >= cap && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(el); $('#tsub').textContent = A.pauseAt ? 'Paused' : 'open session'; $('#face').innerHTML = faceSVG(1 - (el % 3600000) / 3600000); }
+}
+function complete(kind) {
+  const A = S.active; if (!A) return; const el = elapsed(A);
+  let min = Math.floor(el / 60000); min = A.planned ? Math.min(min, A.planned) : Math.min(min, S.tree.d5 ? 240 : 180);
+  if (kind === 'done' && A.planned && el >= A.planned * 60000 - 1000) min = A.planned;
+  S.active = null; try { wake && wake.release(); } catch (e) { /* none */ } wake = null; hideRun();
+  if (min < 2) { save(); renderAll(); toast('Under two minutes. The ledger did not notice.'); return; }
+  const a = actById(A.act) || {id: A.act, name: 'Focus', stat: 'order', wing: ''}, k = a.stat;
+  const parts = [`${min} min`]; let mult = inkMult(k);
+  if (k === 'hearth' && S.tree.h1) { mult *= 1.25; parts.push('Fireside'); }
+  if (k === 'scholarship' && S.tree.s1) { mult *= 1.25; parts.push('Marginalia'); }
+  const now = new Date(), outside = isWeekend(now) || now.getHours() < 9 || now.getHours() >= 17;
+  if (k === 'scholarship' && S.tree.s2 && outside) { mult *= 1.25; parts.push('Side project'); }
+  if (isHearthWeekend(k)) { mult *= 2; parts.push('Weekend rites'); }
+  if (A.mom > 1) { mult *= A.mom; parts.push(`momentum +${Math.round((A.mom - 1) * 100)}%`); }
+  if (cardBonus(k) > 1) parts.push(cardOfDay().name);
+  if (S.tree.d2 && min >= 45) { mult *= 1.15; parts.push('Deep work'); }
+  if (S.tree.d5 && min >= 90) { mult *= 1.25; parts.push('The long hour'); }
+  if (kind === 'done' && A.planned && min >= A.planned) { mult *= 1.1; parts.push('kept to time'); }
+  let gain = Math.round(min * mult) + (A.tie ? 10 : 0);
+  const statBefore = statLevel(k);
+  touchStat(k, min); noteEvent(k, 'focus'); if (A.early) S.c.early++; S.c.maxMom = Math.max(S.c.maxMom || 1, A.mom || 1); const lv = earn(gain, k);
+  S.actMin[a.id] = (S.actMin[a.id] || 0) + min; S.actCount[a.id] = (S.actCount[a.id] || 0) + 1;
+  S.c.sessions++; S.c.focusMin += min; S.c.longest = Math.max(S.c.longest, min); S.c.focusByStat[k] = (S.c.focusByStat[k] || 0) + min; addDay('focus', min);
+  S.momentum = A.mom || 1; S.lastEnd = Date.now();
+  const g = min >= 20 ? dropGear(.06 + min / 600) : null;
+  let clean = false;
+  if (A.tie && S.loose[a.id]) { S.loose[a.id]--; const t = ymd(); S.ties[t] = (S.ties[t] || 0) + 1; clean = checkClean(); }
+  pushRecent({t: Date.now(), type: 'focus', name: a.name, ink: gain, stat: k, min, note: A.note});
+  save(logRow('focus', a.name, min, gain, k, [A.note, kind === 'stop' ? 'stopped' : ''].filter(Boolean).join('; ')));
+  const achs = checkAch();
+  if (kind === 'done' && A.planned) chime();
+  showReward({a, k, min, gain, parts, lv, statUp: statLevel(k) > statBefore ? statLevel(k) : 0, g, clean, kind, tie: A.tie, achs});
+}
+function looseTotal() { return Object.values(S.loose).reduce((x, y) => x + (y || 0), 0); }
+function checkClean() { const t = ymd(); if (looseTotal() === 0 && (S.ties[t] || 0) > 0 && !S.cleanDays.includes(t)) { S.cleanDays.push(t); S.c.cleanDays++; S.ink += 40; S.xp += 40; return true; } return false; }
+function showReward(x) {
+  const say = x.kind === 'stop' ? fill(pick(LINES.stop), {min: x.min}) : (Math.random() < .6 ? LINES.stat[x.k] : pick(LINES.finish));
+  let h = `<div class="wrap reward"><h2>${esc(x.a.name)}</h2><div class="gain" id="gain">+0 <small>ink</small></div><div class="tiny">${esc(x.parts.join(' · '))}</div><p class="say">${esc(say)}</p>`;
+  if (x.lv) h += `<div class="card event"><div class="k">Fellow level ${x.lv}</div><div class="h">${esc(titleFor(x.lv))}</div></div>`;
+  if (x.statUp) h += `<div class="card event"><div class="k">${esc(STATS[x.k].n)} rises</div><div class="h">Level ${x.statUp}</div></div>`;
+  if (x.g && !x.g.dupe) h += `<div class="card event"><div class="k">Found</div><div class="h"><span class="gem ${x.g.r}"></span>${esc(x.g.n)}</div><div class="tiny">${esc(RAR[x.g.r])} · ${esc(SLOTS[x.g.slot])} · ${Object.entries(x.g.b).map(([s, v]) => `+${v} ${STATS[s].n}`).join(', ')}. Equip it on the Fellow page.</div></div>`;
+  if (x.g && x.g.dupe) h += `<div class="card"><div class="tiny">You found something you already own and sold it for ${x.g.ink} ink.</div></div>`;
+  if (x.clean) h += `<div class="card event"><div class="k">A clean day</div><div class="h">Every loose end tied. +40</div></div>`;
+  if (S.tree.d3 && !x.tie) h += `<div class="card" id="loose-q"><div>Anything left hanging from this?</div><div class="row" style="margin-top:8px"><button class="btn" data-act="no-loose">No, all done</button><button class="btn" data-act="add-loose" data-id="${esc(x.a.id)}">Leave a loose end</button></div></div>`;
+  h += `<div class="row" style="width:100%;margin-top:6px"><button class="btn" data-act="reward-close">Back</button><button class="btn primary" data-act="again">Again: ${esc(x.a.name)}</button></div></div>`;
+  const el = $('#reward'); el.innerHTML = h; el.classList.remove('hidden'); el.scrollTop = 0;
+  let shown = 0; const inc = x.gain / 24; const iv = setInterval(() => { shown += inc; if (shown >= x.gain) { shown = x.gain; clearInterval(iv); } const g = $('#gain'); if (g) g.innerHTML = `+${Math.round(shown)} <small>ink</small>`; }, 28);
+  renderAll();
+}
+
+/* ============ portrait ============ */
+function portrait(opts = {}) {
+  const L = S.settings.look, eq = S.gear.eq, vig = statLevel('vigour'), rumpled = cond('vigour') < .75;
+  const allGood = SK.every(k => cond(k) >= .95);
+  const sw = 34 + Math.min(26, vig * .5);
+  const skin = {light: '#efd2b6', medium: '#d6a47c', tan: '#b47d55', deep: '#7a5034'}[L.skin] || '#efd2b6';
+  const hair = {black: '#1d1814', brown: '#4a3122', auburn: '#7b3b1f', blond: '#c7a05a', grey: '#9c958c', white: '#e4e0d8'}[L.hair] || '#4a3122';
+  const coat = {cord: '#6b4a2e', wax: '#4a5135', gown: '#151515'}[eq.body] || '#39404b';
+  const scarf = {green: '#2f5a3e', oxscarf: '#6e2320'}[eq.neck];
+  let s = `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs><radialGradient id="bgp" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="${S.tree.h3 ? '#5a2f15' : '#2c241b'}"/><stop offset="1" stop-color="#120e0a"/></radialGradient></defs>`;
+  s += `<rect width="200" height="240" fill="url(#bgp)"/>`;
+  if (S.tree.h3) s += `<g opacity=".7"><rect x="20" y="150" width="50" height="40" fill="#2a1a10"/><path d="M30 190 q15 -30 30 0" fill="#e0882f"/><path d="M38 190 q7 -18 14 0" fill="#f6c25a"/></g>`;
+  if (allGood) s += `<circle cx="100" cy="112" r="70" fill="var(--accent)" opacity=".08"/>`;
+  if (eq.familiar === 'cat') s += `<path d="M150 240 v-34 q0 -10 8 -14 l-2 -10 l7 7 q4 -1 8 0 l7 -7 l-2 10 q8 4 8 14 v34 z" fill="#0c0c0c"/><circle cx="160" cy="200" r="1.8" fill="#d9c35a"/><circle cx="170" cy="200" r="1.8" fill="#d9c35a"/>`;
+  s += `<path d="M${100 - sw} 240 Q${100 - sw} 180 100 172 Q${100 + sw} 180 ${100 + sw} 240 Z" fill="${coat}"/>`;
+  if (eq.body === 'gown') s += `<path d="M${100 - sw} 240 Q${100 - sw + 6} 190 88 176 L84 240 Z M${100 + sw} 240 Q${100 + sw - 6} 190 112 176 L116 240Z" fill="#000" opacity=".5"/>`;
+  s += `<path d="M88 176 L100 206 L112 176 Z" fill="#e9e2d2"/><path d="M96 182 L100 206 L104 182 Z" fill="${rumpled ? '#6b2b26' : '#5a2a2a'}" transform="${rumpled ? 'rotate(8 100 190)' : ''}"/>`;
+  if (eq.satchel) s += `<path d="M${100 - sw + 8} 182 L${100 + sw - 14} 236" stroke="${eq.satchel === 'canvas' ? '#a89470' : '#5b3a22'}" stroke-width="5"/>`;
+  if (eq.neck === 'fork') s += `<path d="M100 200 v12 M96 212 v-8 M104 212 v-8 M96 212 h8" stroke="#cfd3d6" stroke-width="1.5" fill="none"/>`;
+  s += `<rect x="91" y="150" width="18" height="26" fill="${skin}"/>`;
+  if (scarf) s += `<path d="M84 170 Q100 182 116 170 L118 178 Q100 190 82 178 Z" fill="${scarf}"/><path d="M108 178 l6 26 l-8 0 l-4 -24 z" fill="${scarf}"/>`;
+  s += `<ellipse cx="70" cy="112" rx="5" ry="8" fill="${skin}"/><ellipse cx="130" cy="112" rx="5" ry="8" fill="${skin}"/>`;
+  s += `<ellipse cx="100" cy="110" rx="30" ry="36" fill="${skin}"/>`;
+  if (L.beard === 'stubble') s += `<path d="M72 116 Q74 146 100 148 Q126 146 128 116 Q120 136 100 137 Q80 136 72 116Z" fill="${hair}" opacity=".28"/>`;
+  if (L.beard === 'full') s += `<path d="M70 108 Q70 154 100 156 Q130 154 130 108 Q126 132 112 132 Q100 128 88 132 Q74 132 70 108Z" fill="${hair}"/>`;
+  if (L.beard === 'tache') s += `<path d="M86 128 Q100 122 114 128 Q100 126 86 128Z" fill="${hair}" stroke="${hair}" stroke-width="3"/>`;
+  const st = L.style;
+  if (st === 'short') s += `<path d="M70 104 Q68 70 100 70 Q132 70 130 104 Q126 86 112 84 Q100 80 88 84 Q74 88 70 104Z" fill="${hair}"/>`;
+  if (st === 'long') s += `<path d="M68 112 Q64 66 100 66 Q136 66 132 112 L134 160 Q126 150 126 120 Q124 88 100 84 Q76 88 74 120 Q74 150 66 160Z" fill="${hair}"/>`;
+  if (st === 'tied') s += `<path d="M70 104 Q68 70 100 70 Q132 70 130 104 Q126 84 100 82 Q74 84 70 104Z" fill="${hair}"/><circle cx="100" cy="66" r="9" fill="${hair}"/>`;
+  if (st === 'shaved') s += `<path d="M71 100 Q70 72 100 72 Q130 72 129 100 Q120 82 100 81 Q80 82 71 100Z" fill="${hair}" opacity=".35"/>`;
+  if (rumpled && st !== 'shaved') s += `<path d="M84 74 l-4 -8 M96 70 l1 -9 M110 72 l5 -8 M120 78 l7 -5" stroke="${hair}" stroke-width="2.5" stroke-linecap="round"/>`;
+  s += `<path d="M84 100 q6 -3 12 0 M104 100 q6 -3 12 0" stroke="${hair}" stroke-width="2" fill="none"/>`;
+  s += `<circle cx="90" cy="108" r="2.6" fill="#1a1410"/><circle cx="110" cy="108" r="2.6" fill="#1a1410"/>`;
+  s += allGood ? `<path d="M90 128 Q100 135 110 128" stroke="#7a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>` : `<path d="M91 129 Q100 132 109 129" stroke="#7a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  if (eq.eyes === 'specs' || eq.eyes === 'brass') { const c = eq.eyes === 'brass' ? '#c9a45c' : '#2a2a2a'; s += `<circle cx="90" cy="108" r="8" fill="none" stroke="${c}" stroke-width="1.8"/><circle cx="110" cy="108" r="8" fill="none" stroke="${c}" stroke-width="1.8"/><path d="M98 108 h4 M82 107 l-10 -2 M118 107 l10 -2" stroke="${c}" stroke-width="1.5"/>`; }
+  if (eq.eyes === 'loupe') s += `<circle cx="110" cy="108" r="9" fill="#b9c7ea" fill-opacity=".2" stroke="#c9a45c" stroke-width="2.4"/><path d="M119 110 q12 8 16 30" stroke="#c9a45c" stroke-width="1" fill="none"/>`;
+  if (eq.head === 'cap') s += `<path d="M68 96 Q70 70 100 68 Q132 68 134 92 L140 98 Q104 88 68 96Z" fill="#6a5a44"/>`;
+  if (eq.head === 'brim') s += `<ellipse cx="100" cy="86" rx="52" ry="9" fill="#1c1a18"/><path d="M76 86 Q78 56 100 56 Q122 56 124 86Z" fill="#1c1a18"/><rect x="76" y="78" width="48" height="5" fill="#6e2320"/>`;
+  if (eq.head === 'hood') s += `<path d="M62 150 Q56 64 100 58 Q144 64 138 150 L128 150 Q132 82 100 78 Q68 82 72 150Z" fill="#2f3a2a"/>`;
+  if (eq.familiar === 'raven') s += `<g transform="translate(${100 + sw - 22} 160)"><path d="M0 14 q8 -16 22 -12 l8 -4 l-6 6 q4 10 -4 16 z" fill="#0d0d10"/><circle cx="20" cy="4" r="1.4" fill="#ccc"/></g>`;
+  if (eq.familiar === 'owl') s += `<g transform="translate(${100 + sw - 26} 152)"><ellipse cx="12" cy="14" rx="11" ry="14" fill="#d8c3a0"/><path d="M1 6 q11 -8 22 0 q-11 4 -22 0z" fill="#b89a6e"/><circle cx="8" cy="10" r="2.5" fill="#1a1410"/><circle cx="16" cy="10" r="2.5" fill="#1a1410"/></g>`;
+  const hand = eq.hand && GEAR_BY[eq.hand];
+  if (hand) s += `<g transform="translate(14 196)"><circle cx="16" cy="16" r="16" fill="#0008" stroke="var(--accent2)"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="var(--accent)" font-family="serif">${{pen: '✒', trowel: '⚘', bow: '➶', dumbbell: '◍', mirror: '◐'}[hand.id] || '✦'}</text></g>`;
+  if (opts.frame !== false) s += `<rect x="1" y="1" width="198" height="238" fill="none" stroke="var(--accent2)" stroke-width="2"/>`;
+  return s + `</svg>`;
+}
+
+/* ============ omens: the card of the day and the moon ============ */
+const ARCANA = [
+  ['0', 'The Fool', 'wonder', 'Try something new.'], ['I', 'The Magician', 'craft', 'Skill and will.'], ['II', 'The High Priestess', 'scholarship', 'Quiet study.'],
+  ['III', 'The Empress', 'hearth', 'Care and abundance.'], ['IV', 'The Emperor', 'order', 'Structure and rule.'], ['V', 'The Hierophant', 'scholarship', 'Tradition and teaching.'],
+  ['VI', 'The Lovers', 'hearth', 'Choose each other.'], ['VII', 'The Chariot', 'vigour', 'Drive forward.'], ['VIII', 'Strength', 'vigour', 'Patient strength.'],
+  ['IX', 'The Hermit', 'scholarship', 'Withdraw and think.'], ['X', 'Wheel of Fortune', 'wonder', 'Luck turns: gear turns up twice as often.'], ['XI', 'Justice', 'order', 'Settle your accounts.'],
+  ['XII', 'The Hanged Man', 'wonder', 'Pause. Rest counts today.'], ['XIII', 'Death', 'order', 'Endings. Close what is open.'], ['XIV', 'Temperance', 'vigour', 'Balance and moderation.'],
+  ['XV', 'The Devil', 'order', 'Resist the drift.'], ['XVI', 'The Tower', 'craft', 'Do the hard thing first.'], ['XVII', 'The Star', 'wonder', 'Hope and renewal.'],
+  ['XVIII', 'The Moon', 'wonder', 'Dreams and the night sky.'], ['XIX', 'The Sun', 'hearth', 'Warmth and joy.'], ['XX', 'Judgement', 'craft', 'Take stock, then act.'],
+  ['XXI', 'The World', 'all', 'Completion. Everything is favoured a little.']
+];
+function hashStr(x) { let h = 2166136261; for (let i = 0; i < x.length; i++) { h ^= x.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function cardOfDay(d = new Date()) { const a = ARCANA[hashStr('institute:' + ymd(d)) % ARCANA.length]; return {num: a[0], name: a[1], stat: a[2], text: a[3]}; }
+function cardBonus(k) { const c = cardOfDay(); return c.stat === 'all' ? 1.1 : c.stat === k ? 1.2 : 1; }
+function moonPhase(d = new Date()) {
+  const syn = 29.530588853, ref = Date.UTC(2000, 0, 6, 18, 14), p = ((((d - ref) / 864e5) % syn) + syn) % syn / syn;
+  const names = ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'];
+  return {p, name: names[Math.floor(p * 8 + .5) % 8], full: Math.abs(p - .5) < .034};
+}
+function moonSVG(p, size) {
+  const lit = Math.cos(p * 2 * Math.PI), x = (10 * Math.abs(lit)).toFixed(2);
+  const path = p < .5 ? `M12 2 A10 10 0 0 1 12 22 A${x} 10 0 0 ${lit > 0 ? 0 : 1} 12 2Z` : `M12 2 A10 10 0 0 0 12 22 A${x} 10 0 0 ${lit > 0 ? 1 : 0} 12 2Z`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" style="flex:none"><circle cx="12" cy="12" r="10" fill="#0007" stroke="var(--accent2)" stroke-width=".8"/><path d="${path}" fill="#e9dcc0"/></svg>`;
+}
+function noteEvent(k, kind) {
+  const now = new Date(), c = cardOfDay(now), m = now.getMonth() + 1, d = now.getDate();
+  if (c.stat === k || c.stat === 'all') S.c.favoured++;
+  if (c.stat === 'all') S.marks.seasons.world = 1;
+  if (k === 'hearth' && isWeekend(now)) { const wk = weekStart(now); if (!S.marks.hw.includes(wk)) S.marks.hw.push(wk); }
+  if (m === 10 && d === 31) S.marks.seasons.samhain = 1;
+  if (m === 12 && d === 21) S.marks.seasons.solstice = 1;
+  if (m === 6 && d === 21) S.marks.seasons.midsummer = 1;
+  if (kind === 'focus') { if (now.getDay() === 5 && d === 13) S.marks.seasons.f13 = 1; if (moonPhase(now).full) S.c.fullMoon++; if (now.getHours() >= 21) S.c.late++; }
+}
+const activeDays = s => Object.values(s.days).filter(v => (v.ink || 0) > 0).length;
+function runOfDays(list) { const u = [...new Set(list)].sort(); let best = 0, run = 0, prev = null; for (const d of u) { run = prev && daysBetween(prev, d) === 1 ? run + 1 : 1; best = Math.max(best, run); prev = d; } return best; }
+const pursuitLevel = g => Math.floor(Math.sqrt(goalPoints(g) / 40));
+ACH.push(...[
+  {id: 'early', n: 'Matins', d: 'Start a focus session before 8am', test: s => s.c.early >= 1, reward: 75},
+  {id: 'early20', n: 'The early office', d: '20 sessions started before 8am', test: s => s.c.early >= 20, reward: 600},
+  {id: 'lamp', n: 'Lamplighter', d: 'Finish a session after 9pm', test: s => s.c.late >= 1, reward: 75},
+  {id: 'long2', n: 'The long count', d: 'A single session of two hours', test: s => s.c.longest >= 120, reward: 400},
+  {id: 'ten', n: 'Ten rites', d: 'Tick ten rituals in one day', test: s => Object.values(s.days).some(v => (v.rituals || 0) >= 10), reward: 200},
+  {id: 'week7', n: 'Seven full sets', d: 'Every ritual due, seven days running', test: s => runOfDays(s.fullDays) >= 7, reward: 1200},
+  {id: 'st365', n: 'A year and a day', d: 'Any ritual streak of 365', test: s => s.c.bestStreak >= 365, reward: 20000},
+  {id: 'act30', n: 'A regular', d: 'Active on 30 different days', test: s => activeDays(s) >= 30, reward: 500},
+  {id: 'act100', n: 'A fixture', d: 'Active on 100 different days', test: s => activeDays(s) >= 100, reward: 2500},
+  {id: 'act365', n: 'An institution', d: 'Active on 365 different days', test: s => activeDays(s) >= 365, reward: 12000},
+  {id: 'xp10k', n: 'Ink-stained fingers', d: 'Earn 10,000 experience', test: s => s.xp >= 10000, reward: 300},
+  {id: 'xp100k', n: 'Scriptorium', d: 'Earn 100,000 experience', test: s => s.xp >= 100000, reward: 3000},
+  {id: 'xp1m', n: 'The great library', d: 'Earn 1,000,000 experience', test: s => s.xp >= 1000000, reward: 30000},
+  {id: 'spec10', n: 'Specialist', d: 'Any stat at level 10', test: s => SK.some(k => statLevelS(s, k) >= 10), reward: 300},
+  {id: 'spec25', n: 'Authority', d: 'Any stat at level 25', test: s => SK.some(k => statLevelS(s, k) >= 25), reward: 2500},
+  {id: 'broad', n: 'Broad shoulders', d: 'Vigour at level 10', test: s => statLevelS(s, 'vigour') >= 10, reward: 500},
+  {id: 'oak', n: 'Iron and oak', d: 'Vigour at level 25', test: s => statLevelS(s, 'vigour') >= 25, reward: 3000},
+  {id: 'equil', n: 'Equilibrium', d: 'Every stat in full condition at once', test: s => SK.every(k => s.stat[k].last && cond(k) >= 1), reward: 250},
+  {id: 'deeds50', n: 'Deeds, not words, fifty times', d: 'Log 50 deeds', test: s => s.c.deeds >= 50, reward: 500},
+  {id: 'clean10', n: 'Nothing left over', d: 'Ten clean days', test: s => s.c.cleanDays >= 10, reward: 1000},
+  {id: 'mom', n: 'Perpetual motion', d: 'Reach the highest momentum you can', test: s => !!s.tree.d1 && s.c.maxMom >= (s.tree.d4 ? 1.6 : 1.3), reward: 400},
+  {id: 'cards', n: 'Heeding the cards', d: 'Log 25 times in the stat the card favours', test: s => s.c.favoured >= 25, reward: 400},
+  {id: 'cards100', n: 'Reader of omens', d: 'Log 100 times in the favoured stat', test: s => s.c.favoured >= 100, reward: 1500},
+  {id: 'hw4', n: 'Weekends at the hearth', d: 'Hearth logged on four different weekends', test: s => s.marks.hw.length >= 4, reward: 500},
+  {id: 'hw26', n: 'Half a year of weekends', d: 'Hearth logged on 26 different weekends', test: s => s.marks.hw.length >= 26, reward: 3000},
+  {id: 'rare3', n: 'Reliquary', d: 'Own three rare pieces of gear', test: s => Object.keys(s.gear.owned).filter(k => GEAR_BY[k] && GEAR_BY[k].r === 'r').length >= 3, reward: 1000},
+  {id: 'allgear', n: 'The complete cabinet', d: 'Own every piece of gear', test: s => GEAR.every(g => s.gear.owned[g.id]), reward: 10000},
+  {id: 'endow5', n: 'Benefactor', d: 'Reach Endowment V', test: s => (s.tree.e || 0) >= 5, reward: 2000},
+  {id: 'endow10', n: 'Patron of the Institute', d: 'Reach Endowment X', test: s => (s.tree.e || 0) >= 10, reward: 10000},
+  {id: 'purs3', n: 'Dedication', d: 'Any pursuit reaches Capable', test: () => CFG.goals.some(g => pursuitLevel(g) >= 3), reward: 500},
+  {id: 'pursall', n: 'Irons in the fire', d: 'Every pursuit past Begun', test: () => CFG.goals.length > 0 && CFG.goals.every(g => pursuitLevel(g) >= 1), reward: 600},
+  {id: 'moon', n: 'By the light of the moon', d: 'Focus during a full moon', test: s => s.c.fullMoon >= 1, reward: 200, h: 1},
+  {id: 'samhain', n: 'Samhain', d: 'Log anything on 31 October', test: s => !!s.marks.seasons.samhain, reward: 500, h: 1},
+  {id: 'solstice', n: 'The longest night', d: 'Log anything on 21 December', test: s => !!s.marks.seasons.solstice, reward: 500, h: 1},
+  {id: 'midsummer', n: 'Midsummer', d: 'Log anything on 21 June', test: s => !!s.marks.seasons.midsummer, reward: 500, h: 1},
+  {id: 'prodigal', n: 'The prodigal Fellow', d: 'Come back after a week away', test: s => s.c.prodigal >= 1, reward: 150, h: 1},
+  {id: 'f13', n: 'Unlucky for some', d: 'Finish a session on Friday the 13th', test: s => !!s.marks.seasons.f13, reward: 313, h: 1},
+  {id: 'world', n: 'The World', d: 'Log something on a day The World is drawn', test: s => !!s.marks.seasons.world, reward: 221, h: 1}
+]);
+
+/* ============ render ============ */
+let tab = 'today', selAct = '', line = '';
+function header() {
+  const p = fellowProgress(S.xp);
+  $('#h-mini').innerHTML = portrait({frame: false});
+  $('#h-lv').textContent = `Level ${p.L} · ${titleFor(p.L)}`;
+  $('#h-ink').textContent = num(S.ink);
+  $('#h-xp').style.width = `${p.into / p.need * 100}%`;
+}
+function greet() {
+  const h = new Date().getHours(), t = ymd(), doneN = doneToday().length;
+  if (h >= 11 && doneN === 0 && Math.random() < .6) return pick(LINES.bad);
+  if (moonPhase().full && Math.random() < .5) return pick(LINES.moon);
+  return pick(h < 12 ? LINES.morning : h < 17 ? LINES.afternoon : h < 22 ? LINES.evening : LINES.late);
+}
+function ritRow(r, done) {
+  const st = streak(r);
+  let sub = SCHED[r.sched]; if (r.sched === 'perweek') sub = `${countInPeriod(r, new Date())} of ${r.n} this week`; if (r.sched === 'everyn') sub = `every ${r.n} days`;
+  return `<div class="rit${done ? ' done' : ''}"><button class="tick" data-tick="${esc(r.id)}" aria-label="Tick">${done ? '✓' : ''}</button><div class="nm"><span class="statdot" style="background:${STATS[r.stat].c}"></span>${esc(r.name)}<small>${esc(sub)}</small></div>${st > 1 ? `<span class="flame">${st} in a row</span>` : ''}</div>`;
+}
+function renderToday() {
+  if (!line) line = greet();
+  const due = dueToday(), done = doneToday(), any = CFG.rituals.filter(r => r.sched === 'anytime' && !doneOn(r.id, ymd())), later = CFG.rituals.filter(r => r.sched !== 'anytime' && !isDue(r) && !doneOn(r.id, ymd()));
+  let h = '';
+  if (!S.seenIntro) h += `<div class="card event" style="margin-top:12px"><div class="h">Welcome to the Institute, Fellow.</div><p class="muted">Tick rituals as you do them. Use Focus for timed work, or log a deed afterwards. Everything earns ink and experience, raises your stats and occasionally turns up gear. Spend ink on the Tree. Edit your rituals, activities and pursuits in the Google Sheet.</p><button class="btn" data-act="intro">Understood</button></div>`;
+  if (!connected()) h += `<div class="card event" style="margin-top:12px"><div class="k">Not connected</div><div class="h">Connect your Google Sheet</div><p class="muted">Until then, progress saves on this device only and your own rituals will not appear.</p><button class="btn primary" data-act="settings">Connect</button></div>`;
+  h += `<p class="archivist">${esc(line)}</p>`;
+  const card = cardOfDay(), moon = moonPhase();
+  h += `<div class="card omen"><div class="tarot"><span class="n">${card.num}</span><span class="g glyph" style="margin:0">${STAT_GLYPH[card.stat]}</span><span class="s">${card.stat === 'all' ? 'All' : STATS[card.stat].n}</span></div><div style="flex:1"><div class="tiny" style="font-variant:small-caps;letter-spacing:.06em">The card of the day</div><div class="serif" style="font-size:21px;line-height:1.1">${esc(card.name)}</div><div class="muted">${esc(card.text)} ${card.stat === 'all' ? 'Everything earns +10%' : `${STATS[card.stat].n} earns +20%`} today.</div><div class="tiny" style="margin-top:5px;display:flex;align-items:center;gap:6px">${moonSVG(moon.p, 16)}${esc(moon.name)}${moon.full ? ': focus tonight for something hidden' : ''}</div></div></div>`;
+  h += `<div class="label">Due today <small>${done.length} done</small></div><div class="card">`;
+  h += due.length ? due.map(r => ritRow(r, false)).join('') : `<div class="muted">Nothing left due today. ${done.length ? 'Very good.' : ''}</div>`;
+  h += `</div>`;
+  if (done.length) h += `<details><summary>Done today (${done.length}), tap to undo</summary><div class="card">${done.map(r => ritRow(r, true)).join('')}</div></details>`;
+  if (any.length) h += `<details><summary>Anytime (${any.length})</summary><div class="card">${any.map(r => ritRow(r, false)).join('')}</div></details>`;
+  if (later.length) h += `<details><summary>Not due today (${later.length})</summary><div class="card">${later.map(r => ritRow(r, false)).join('')}</div></details>`;
+  h += `<div class="row" style="margin-top:12px"><button class="btn" data-act="deed">Log a deed</button><button class="btn primary" data-tab="focus">Start focus</button></div>`;
+  const td = S.days[ymd()] || {};
+  h += `<div class="chips"><span class="chip">Focus <b>${fmtMin(td.focus || 0)}</b></span><span class="chip">Rituals <b>${td.rituals || 0}</b></span><span class="chip">Ink today <b>${num(td.ink || 0)}</b></span>${looseTotal() ? `<span class="chip hot">Loose ends ${looseTotal()}</span>` : ''}</div>`;
+  const low = SK.filter(k => cond(k) < .9);
+  if (low.length) h += `<p class="tiny" style="margin-top:12px">Gathering dust: ${low.map(k => `${STATS[k].n} (${Math.round(cond(k) * 100)}%)`).join(', ')}. One log in each restores it.</p>`;
+  $('#view-today').innerHTML = h;
+}
+function wingsHTML(attr, selected, showLoose) {
+  const wings = [...new Set(CFG.activities.map(a => a.wing))];
+  const top = Object.entries(S.actCount).sort((a, b) => b[1] - a[1]).map(x => x[0]).filter(id => actById(id)).slice(0, 6);
+  let h = '';
+  const btn = a => `<button class="act${a.id === selected ? ' sel' : ''}" data-${attr}="${esc(a.id)}">${esc(a.name)}${showLoose && S.loose[a.id] ? `<span class="lo">${S.loose[a.id]}</span>` : ''}</button>`;
+  if (top.length) h += `<div class="wing">Most used</div><div class="acts">${top.map(id => btn(actById(id))).join('')}</div>`;
+  for (const w of wings) h += `<div class="wing">${esc(w)}</div><div class="acts">${CFG.activities.filter(a => a.wing === w).map(btn).join('')}</div>`;
+  return h;
+}
+function renderFocus() {
+  if (!selAct || !actById(selAct)) selAct = actById(S.settings.act) ? S.settings.act : (CFG.activities[0] && CFG.activities[0].id);
+  const a = actById(selAct), mom = momentumNow();
+  let h = `<div class="label">What are you doing?</div>${wingsHTML('pick', selAct, true)}`;
+  h += `<div class="label">How long?</div><div class="durs">${[10, 15, 25, 45, 60, 0].map(d => `<button class="dur${S.settings.dur === d ? ' sel' : ''}" data-dur="${d}">${d || 'Open'}</button>`).join('')}</div>`;
+  h += `<input id="f-note" maxlength="60" placeholder="Note, optional. Initials only, never names." style="margin-top:10px">`;
+  h += `<button class="begin" data-act="begin">Begin${a ? ': ' + esc(a.name) : ''}</button>`;
+  h += `<div class="chips">${mom > 1 ? `<span class="chip hot">Momentum +${Math.round((mom - 1) * 100)}%</span>` : ''}${a ? `<span class="chip">${esc(STATS[a.stat].n)} <b>+${Math.round((inkMult(a.stat) - 1) * 100)}%</b></span>` : ''}${a && S.loose[a.id] ? `<button class="chip hot" data-act="loose" data-id="${esc(a.id)}">${S.loose[a.id]} loose end${S.loose[a.id] > 1 ? 's' : ''}: tie off</button>` : ''}</div>`;
+  $('#view-focus').innerHTML = h;
+}
+function goalPoints(g) {
+  let p = 0;
+  for (const a of CFG.activities) if (g.links.includes(slug(a.name))) p += (S.actMin[a.id] || 0) + 15 * (S.actDeed[a.id] || 0);
+  for (const r of CFG.rituals) if (g.links.includes(slug(r.name))) p += 15 * (S.ritCount[r.id] || 0);
+  return p * (S.tree.s3 ? 1.25 : 1);
+}
+function renderFellow() {
+  let h = `<div class="label">${esc(S.settings.name)}</div><div class="fellow"><div class="portrait">${portrait()}</div><div style="flex:1">`;
+  for (const k of SK) { const L = statLevel(k), c = cond(k), gb = gearBonus(k); h += `<div class="stat"><div class="h"><span><span class="glyph">${STAT_GLYPH[k]}</span>${STATS[k].n}</span><b>${L}${gb ? ` <span class="tiny">+${Math.round(gb * 10) / 10}</span>` : ''}</b></div><div class="bar"><i style="width:${statProg(k) * 100}%"></i></div><div class="cond${c < .8 ? ' low' : ''}" title="Condition"><i style="width:${c * 100}%"></i></div></div>`; }
+  h += `</div></div><p class="tiny">Thick bar: level, permanent. Thin bar: condition, which fades after three quiet days and returns with one log. Each stat makes its own activities pay more; Vigour boosts everything.</p>`;
+  h += `<div class="label">Equipped <small>${Object.keys(S.gear.owned).length} owned</small></div><div class="slots">`;
+  for (const [slot, nm] of Object.entries(SLOTS)) { if (slot === 'familiar' && !S.tree.o2) continue; const g = GEAR_BY[S.gear.eq[slot]]; h += `<button class="slot" data-slot="${slot}"><small>${nm}</small>${g ? `<span class="gem ${g.r}"></span>${esc(g.n)}` : '<span class="tiny">Empty</span>'}</button>`; }
+  h += `</div>${S.tree.o1 ? `<button class="btn full" data-act="shop">Visit the Outfitter</button>` : `<p class="tiny">Gear turns up from focus sessions of 20 minutes or more and from weekly rituals. Unlock Tailor on the Tree to buy it.</p>`}`;
+  h += `<div class="label">Pursuits <small>edit in the Sheet</small></div><div class="card">`;
+  if (!CFG.goals.length) h += `<div class="muted">No pursuits yet. Add them on the Goals tab of your Sheet.</div>`;
+  for (const g of CFG.goals) { const p = goalPoints(g), L = Math.floor(Math.sqrt(p / 40)), lo = 40 * L * L, hi = 40 * (L + 1) * (L + 1); const t = L < PURSUIT.length ? PURSUIT[L] : `Luminary ${roman(L - PURSUIT.length + 2)}`; h += `<div class="goal"><div class="h"><span>${esc(g.name)}</span><span class="t">${esc(t)}</span></div><div class="bar"><i style="width:${(p - lo) / (hi - lo) * 100}%"></i></div></div>`; }
+  h += `</div><div class="label">Achievements <small>${Object.keys(S.ach).length} of ${ACH.length}</small></div><div class="achs">`;
+  ACH.forEach((a, i) => { const got = S.ach[a.id]; h += a.h && !got ? `<div class="ach sealed"><span class="num">${roman(i + 1)}</span><b>Sealed</b><span class="tiny">A hidden achievement. Keep living.</span></div>` : `<div class="ach${got ? ' got' : ''}"><span class="num">${roman(i + 1)}</span><b>${esc(a.n)}</b>${esc(a.d)}<div class="tiny">+${num(a.reward)} ink${a.theme ? ' · theme' : ''}${got ? ' · ' + esc(got) : ''}</div></div>`; });
+  $('#view-fellow').innerHTML = h + `</div>`;
+}
+const endowCost = () => Math.round(3000 * Math.pow(1.4, S.tree.e || 0));
+function renderTree() {
+  let h = `<p class="archivist">Ink spent here is gone, but what it buys stays for good. ${num(S.ink)} ink to spend.</p>`;
+  for (const B of TREE) {
+    h += `<div class="card branch"><h3>${esc(B.b)}</h3><div class="tiny">${esc(B.d)}</div>`;
+    for (const n of B.nodes) {
+      const got = !!S.tree[n.id], ok = (n.req || []).every(r => S.tree[r]);
+      h += `<div class="node${got ? ' got' : ok ? '' : ' locked'}"><div class="seal">${got ? '✓' : ''}</div><div class="nm"><b>${esc(n.n)}</b><small>${esc(n.d)}${!ok ? ` Needs ${n.req.map(r => NODE[r].n).join(' and ')}.` : ''}</small></div>${got ? '' : `<button class="btn small${S.ink >= n.cost && ok ? ' primary' : ''}" data-buy="${n.id}" ${S.ink >= n.cost && ok ? '' : 'disabled'}>${num(n.cost)}</button>`}</div>`;
+    }
+    h += `</div>`;
+  }
+  const eok = Object.keys(S.tree).filter(k => k !== 'e').length >= 6;
+  h += `<div class="card branch"><h3>Endowment</h3><div class="tiny">The long game. Each level adds 3% to everything you earn, for good. Costs rise each time.</div><div class="node${eok ? '' : ' locked'}"><div class="seal">${roman(S.tree.e || 0) || '0'}</div><div class="nm"><b>Endowment ${roman((S.tree.e || 0) + 1)}</b><small>Currently +${(S.tree.e || 0) * 3}%. ${eok ? '' : 'Opens after six other nodes.'}</small></div><button class="btn small${eok && S.ink >= endowCost() ? ' primary' : ''}" data-buy="e" ${eok && S.ink >= endowCost() ? '' : 'disabled'}>${num(endowCost())}</button></div></div>`;
+  $('#view-tree').innerHTML = h;
+}
+function renderLedger() {
+  let h = `<div class="label">Last seven days</div><div class="card">`;
+  const days = []; for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); days.push([d, S.days[ymd(d)] || {}]); }
+  const mx = Math.max(1, ...days.map(([, v]) => v.ink || 0));
+  h += days.map(([d, v]) => `<div class="lrow"><span>${d.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric'})}</span><div class="b" style="width:${(v.ink || 0) / mx * 100}%"></div><span class="v">${num(v.ink || 0)}</span></div>`).join('');
+  const wf = days.reduce((a, [, v]) => a + (v.focus || 0), 0), wr = days.reduce((a, [, v]) => a + (v.rituals || 0), 0);
+  h += `<div class="tiny" style="margin-top:6px">Focus ${fmtMin(wf)} · rituals ${wr}</div></div>`;
+  const byStat = {}; for (const e of S.recent) if (Date.now() - e.t < 7 * 864e5) byStat[e.stat] = (byStat[e.stat] || 0) + e.ink;
+  const smx = Math.max(1, ...Object.values(byStat));
+  h += `<div class="label">Where the week went</div><div class="card">${SK.map(k => `<div class="lrow"><span><span class="statdot" style="background:${STATS[k].c}"></span>${STATS[k].n}</span><div class="b" style="width:${(byStat[k] || 0) / smx * 100}%;background:${STATS[k].c}"></div><span class="v">${num(byStat[k] || 0)}</span></div>`).join('')}</div>`;
+  h += `<div class="label">Recent</div><div class="card">`;
+  if (!S.recent.length) h += `<div class="muted">Nothing yet.</div>`;
+  for (const e of S.recent.slice(0, 40)) { const d = new Date(e.t); h += `<div class="ev"><div>${esc(e.name)}${e.min ? ' · ' + fmtMin(e.min) : ''}<small>${d.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'})} ${z2(d.getHours())}:${z2(d.getMinutes())} · ${e.type}${e.note ? ' · ' + esc(e.note) : ''}</small></div><span class="ink">+${e.ink}</span></div>`; }
+  h += `</div>${sheetUrl ? `<p class="tiny">The full log is on the Log tab of <a href="${esc(sheetUrl)}" target="_blank" rel="noopener" style="color:var(--accent)">your Sheet</a>.</p>` : ''}`;
+  $('#view-ledger').innerHTML = h;
+}
+function renderAll() {
+  document.documentElement.setAttribute('data-theme', S.themes.includes(S.settings.theme) || (S.settings.theme === 'midnight' && S.tree.w2) ? S.settings.theme : 'ink');
+  header();
+  ({today: renderToday, focus: renderFocus, fellow: renderFellow, tree: renderTree, ledger: renderLedger})[tab]();
+}
+function showTab(t) {
+  tab = t; ['today', 'focus', 'fellow', 'tree', 'ledger'].forEach(v => $('#view-' + v).classList.toggle('hidden', v !== t));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  renderAll(); window.scrollTo(0, 0);
+}
+
+/* ============ sheets ============ */
+function openSheet(h) { $('#sheet-body').innerHTML = h; $('#sheet').classList.remove('hidden'); }
+function closeSheet() { $('#sheet').classList.add('hidden'); }
+let toastQ = [], toastOn = false;
+function toast(t) { toastQ.push(t); if (!toastOn) nextToast(); }
+function nextToast() { const t = toastQ.shift(); if (!t) { toastOn = false; return; } toastOn = true; const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => { el.remove(); nextToast(); }, 2600); }
+let deedAct = '';
+function deedSheet() {
+  if (!deedAct || !actById(deedAct)) deedAct = selAct || (CFG.activities[0] && CFG.activities[0].id);
+  openSheet(`<h3>Log a deed</h3><p class="muted">Something you did without the timer: a visit, a shop, an evening with the girls.</p>${wingsHTML('deedpick', deedAct, false)}
+    <div class="field" style="margin-top:12px"><label>Minutes, if you know (otherwise it counts as a deed worth 15)</label><input id="d-min" type="number" inputmode="numeric" min="0" max="600" placeholder="optional"></div>
+    <div class="field"><label>Note, optional</label><input id="d-note" maxlength="60" placeholder="Initials only, never names"></div>
+    <div class="row"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="deed-save">Log it</button></div>`);
+}
+function slotSheet(slot) {
+  const owned = GEAR.filter(g => g.slot === slot && S.gear.owned[g.id]);
+  openSheet(`<h3>${esc(SLOTS[slot])}</h3>${owned.length ? owned.map(g => `<button class="slot" style="width:100%;margin-bottom:6px" data-equip="${g.id}"><span class="gem ${g.r}"></span>${esc(g.n)}${S.gear.eq[slot] === g.id ? ' (worn)' : ''}<small>${Object.entries(g.b).map(([s, v]) => `+${v} ${STATS[s].n}`).join(', ')}</small></button>`).join('') : `<p class="muted">Nothing for this slot yet.</p>`}
+    ${S.gear.eq[slot] ? `<button class="btn full" data-unequip="${slot}">Take it off</button>` : ''}<button class="btn full" data-act="close">Close</button>`);
+}
+function shopSheet() {
+  const list = GEAR.filter(g => !S.gear.owned[g.id] && (g.slot !== 'familiar' || S.tree.o2));
+  openSheet(`<h3>The Outfitter</h3><p class="muted">${num(S.ink)} ink to spend.</p>${list.length ? list.map(g => `<div class="node"><div class="nm"><b><span class="gem ${g.r}"></span>${esc(g.n)}</b><small>${esc(SLOTS[g.slot])} · ${Object.entries(g.b).map(([s, v]) => `+${v} ${STATS[s].n}`).join(', ')}</small></div><button class="btn small${S.ink >= PRICE[g.r] ? ' primary' : ''}" data-shop="${g.id}" ${S.ink >= PRICE[g.r] ? '' : 'disabled'}>${num(PRICE[g.r])}</button></div>`).join('') : '<p class="muted">You own everything the Outfitter stocks.</p>'}<button class="btn full" data-act="close">Close</button>`);
+}
+function settingsSheet() {
+  const L = S.settings.look, opt = (m, cur) => Object.entries(m).map(([k, v]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
+  const themes = {}; Object.keys(THEMES).forEach(k => { if (S.themes.includes(k) || (k === 'midnight' && S.tree.w2)) themes[k] = THEMES[k]; });
+  openSheet(`<h3>Settings</h3>
+    <h4>Your Fellow</h4>
+    <div class="field"><label>Name</label><input id="s-name" value="${esc(S.settings.name)}" maxlength="30"></div>
+    <div class="row"><div class="field"><label>Skin</label><select id="s-skin">${opt({light: 'Light', medium: 'Medium', tan: 'Tan', deep: 'Deep'}, L.skin)}</select></div><div class="field"><label>Hair colour</label><select id="s-hair">${opt({black: 'Black', brown: 'Brown', auburn: 'Auburn', blond: 'Blond', grey: 'Grey', white: 'White'}, L.hair)}</select></div></div>
+    <div class="row"><div class="field"><label>Hair</label><select id="s-style">${opt({short: 'Short', long: 'Long', tied: 'Tied up', shaved: 'Shaved'}, L.style)}</select></div><div class="field"><label>Beard</label><select id="s-beard">${opt({none: 'None', stubble: 'Stubble', full: 'Full', tache: 'Moustache'}, L.beard)}</select></div></div>
+    <h4>Look and sound</h4>
+    <div class="row"><div class="field"><label>Theme</label><select id="s-theme">${opt(themes, S.settings.theme)}</select></div><div class="field"><label>Timer</label><select id="s-face">${opt(FACES, S.settings.face)}</select></div></div>
+    <div class="field"><label><input type="checkbox" id="s-sound" style="width:auto"${S.settings.sound ? ' checked' : ''}> Chime when a timer ends</label></div>
+    <p class="tiny">More themes come from achievements and the Tree.</p>
+    <h4>Your Sheet</h4>
+    ${connected() ? `<p class="muted">Connected. Rituals, activities and pursuits come from your Sheet. Edit them there, then reload.</p><button class="btn full" data-act="reload">Reload from the Sheet</button>${sheetUrl ? `<p class="tiny"><a href="${esc(sheetUrl)}" target="_blank" rel="noopener" style="color:var(--accent)">Open the Sheet</a></p>` : ''}<button class="btn full" data-act="disconnect">Disconnect this device</button>`
+      : `<p class="muted">Paste the Connection code from the Connect tab of your Sheet, or tap the Connection link there on this device.</p><textarea id="s-conn" style="min-height:70px" placeholder="https://script.google.com/macros/s/.../exec|key"></textarea><button class="btn primary full" data-act="connect">Connect</button>`}
+    <h4>Backup</h4><textarea id="backup" spellcheck="false">${esc(JSON.stringify(S))}</textarea>
+    <div class="row" style="margin-top:6px"><button class="btn" data-act="copy">Copy</button><button class="btn" data-act="restore">Restore from box</button></div>
+    <button class="btn primary full" data-act="save-settings">Save and close</button>`);
+}
+
+/* ============ events ============ */
+document.addEventListener('click', e => {
+  if (e.target.id === 'sheet') { closeSheet(); return; }
+  const t = e.target.closest('button,[data-tab]'); if (!t) return;
+  const d = t.dataset;
+  if (d.tab) { showTab(d.tab); return; }
+  if (d.tick) { tickRitual(d.tick); return; }
+  if (d.pick) { selAct = d.pick; renderFocus(); return; }
+  if (d.deedpick) { deedAct = d.deedpick; document.querySelectorAll('[data-deedpick]').forEach(b => b.classList.toggle('sel', b.dataset.deedpick === deedAct)); return; }
+  if (d.dur != null && d.dur !== '') { S.settings.dur = Number(d.dur); save(); const n = $('#f-note') ? $('#f-note').value : ''; renderFocus(); $('#f-note').value = n; return; }
+  if (d.slot) { slotSheet(d.slot); return; }
+  if (d.equip) { const g = GEAR_BY[d.equip]; S.gear.eq[g.slot] = g.id; save(logRow('gear', g.n, '', 0, '', 'equipped')); closeSheet(); renderAll(); return; }
+  if (d.unequip) { delete S.gear.eq[d.unequip]; save(); closeSheet(); renderAll(); return; }
+  if (d.shop) { const g = GEAR_BY[d.shop]; if (S.ink >= PRICE[g.r]) { S.ink -= PRICE[g.r]; S.gear.owned[g.id] = true; S.gear.eq[g.slot] = S.gear.eq[g.slot] || g.id; save(logRow('buy', g.n, '', -PRICE[g.r], '', 'Outfitter')); checkAch(); shopSheet(); renderAll(); toast(`${g.n} is yours.`); } return; }
+  if (d.buy) {
+    if (d.buy === 'e') { const c = endowCost(); if (S.ink >= c) { S.ink -= c; S.tree.e = (S.tree.e || 0) + 1; save(logRow('tree', 'Endowment ' + S.tree.e, '', -c, '', '')); checkAch(); renderAll(); toast(`Endowment ${roman(S.tree.e)}. Everything earns ${S.tree.e * 3}% more.`); } return; }
+    const n = NODE[d.buy]; if (S.ink >= n.cost && (n.req || []).every(r => S.tree[r])) { S.ink -= n.cost; S.tree[n.id] = 1; save(logRow('tree', n.n, '', -n.cost, '', n.branch)); checkAch(); renderAll(); toast(`Unlocked: ${n.n}.`); }
+    return;
+  }
+  const a = S.active;
+  switch (d.act) {
+    case 'intro': S.seenIntro = true; save(); renderAll(); break;
+    case 'begin': begin(selAct); break;
+    case 'pause': if (a) { if (a.pauseAt) { a.pausedMs += Date.now() - a.pauseAt; a.pauseAt = null; } else a.pauseAt = Date.now(); save(); tick(); } break;
+    case 'finish': if (a) complete(a.planned && elapsed(a) < a.planned * 60000 - 1000 ? 'early' : 'done'); break;
+    case 'stop': if (!a) break; if (d.armed) complete('stop'); else { d.armed = '1'; t.textContent = 'Stop now?'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = 'Stop'; } }, 3000); } break;
+    case 'no-loose': $('#loose-q').innerHTML = `<i class="muted">Nothing left over. Exactly right.</i>`; break;
+    case 'add-loose': S.loose[d.id] = (S.loose[d.id] || 0) + 1; save(); $('#loose-q').innerHTML = `<i class="muted">Noted. It waits on the Focus page, not in your head.</i>`; break;
+    case 'loose': openSheet(`<h3>Loose ends: ${esc(actById(d.id).name)}</h3><button class="btn primary full" data-act="tie" data-id="${esc(d.id)}">Tie one off now (timed)</button><button class="btn full" data-act="tied" data-id="${esc(d.id)}">Already done (+5)</button><button class="btn full" data-act="drop" data-id="${esc(d.id)}">No longer needed</button><button class="btn full" data-act="close">Close</button>`); break;
+    case 'tie': closeSheet(); begin(d.id, true); break;
+    case 'tied': if (S.loose[d.id]) { S.loose[d.id]--; S.ink += 5; S.xp += 5; const t2 = ymd(); S.ties[t2] = (S.ties[t2] || 0) + 1; const cl = checkClean(); save(logRow('loose', actById(d.id).name, '', 5, '', 'tied')); checkAch(); closeSheet(); renderAll(); toast(cl ? 'Every loose end tied. A clean day: +40.' : 'Tied off.'); } break;
+    case 'drop': if (S.loose[d.id]) { S.loose[d.id]--; save(); closeSheet(); renderAll(); } break;
+    case 'reward-close': $('#reward').classList.add('hidden'); renderAll(); break;
+    case 'again': $('#reward').classList.add('hidden'); begin(S.settings.act); break;
+    case 'deed': deedSheet(); break;
+    case 'deed-save': { const m = Number($('#d-min').value) || 0; if (m < 0 || m > 600) { toast('Minutes between 0 and 600.'); break; } const note = $('#d-note').value.trim().slice(0, 60); closeSheet(); logDeed(deedAct, m, note); } break;
+    case 'shop': shopSheet(); break;
+    case 'settings': settingsSheet(); break;
+    case 'close': closeSheet(); break;
+    case 'save-settings': {
+      const L = S.settings.look; S.settings.name = $('#s-name').value.trim().slice(0, 30) || 'The Fellow';
+      L.skin = $('#s-skin').value; L.hair = $('#s-hair').value; L.style = $('#s-style').value; L.beard = $('#s-beard').value;
+      S.settings.theme = $('#s-theme').value; S.settings.face = $('#s-face').value; S.settings.sound = $('#s-sound').checked;
+      save(); closeSheet(); renderAll(); } break;
+    case 'reload': closeSheet(); load('user'); break;
+    case 'connect': { const c = parseConn($('#s-conn').value); if (!c) { toast('That code does not look right. Copy the whole Connection code cell from the Connect tab.'); break; } CONN = c; LS.set('institute-conn', c); closeSheet(); toast('Connecting...'); load('user'); } break;
+    case 'disconnect': if (!d.armed) { d.armed = '1'; t.textContent = 'Disconnect this device. Sure?'; break; } CONN = null; LS.set('institute-conn', null); closeSheet(); renderAll(); setSync('Disconnected. Saving on this device only.'); break;
+    case 'copy': { const v = JSON.stringify(S); $('#backup').value = v; $('#backup').select(); Promise.resolve().then(() => navigator.clipboard.writeText(v)).then(() => toast('Backup copied.'), () => toast('Select the text and copy it.')); } break;
+    case 'restore': if (!d.armed) { d.armed = '1'; t.textContent = 'Replaces everything. Sure?'; break; } try { const o = JSON.parse($('#backup').value); if (!o || o.v !== 3) throw 0; S = normalise(o); save(); closeSheet(); renderAll(); toast('Restored.'); } catch (err) { toast('That is not an Institute backup.'); } break;
+  }
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) { if (pendingLogs.length || syncTimer) flush(); return; } if (S.active) tick(); else if (connected() && Date.now() - lastLoad > 60000) load('quiet'); else renderAll(); });
+
+/* ============ load ============ */
+let lastLoad = 0;
+function daily() {
+  const t = ymd();
+  if (S.marks.lastOpen === t) return;
+  if (S.marks.lastOpen && daysBetween(S.marks.lastOpen, t) >= 7) { S.c.prodigal++; toast('Welcome back, Fellow. Your desk is exactly as you left it.'); }
+  S.marks.lastOpen = t; save(); checkAch();
+}
+function applyRemote(res) {
+  if (res.raw) { CFG = parseConfig(res.raw); LS.set('institute-raw', res.raw); }
+  if (res.url) { sheetUrl = res.url; LS.set('institute-sheeturl', res.url); }
+  const fresh = !S.xp && !S.ink && !S.c.rituals && !S.c.sessions && !S.c.deeds;
+  if (res.state) { try { const o = normalise(JSON.parse(res.state)); if (fresh || o.updatedAt > (S.updatedAt || 0)) { S = o; cacheLocal(); } else if (o.updatedAt < S.updatedAt) flush(); } catch (e) { /* unreadable save */ } }
+  else if (S.updatedAt) flush();
+}
+function load(mode) {
+  lastLoad = Date.now();
+  if (mode === 'boot') {
+    if (location.hash.startsWith('#connect=')) { const c = parseConn(decodeURIComponent(location.hash.slice(9))); if (c) { CONN = c; LS.set('institute-conn', c); } try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ } }
+    CFG = parseConfig(LS.get('institute-raw', null) || GENERIC);
+    const st = LS.get('institute-state', null); if (st) S = normalise(st);
+    $('#view-loading').classList.add('hidden'); showTab(tab); if (S.active) showRun();
+    if (!connected()) daily();
+  }
+  if (!connected()) { setSync('Not connected to your Sheet yet. Saving on this device.'); return Promise.resolve(); }
+  setSync('Checking your Sheet...');
+  return remote('getAll').then(res => {
+    const was = !!S.active; applyRemote(res); daily(); if (!$('#reward').classList.contains('hidden')) header(); else renderAll(); if (S.active && !was) showRun();
+    setSync('Connected to your Google Sheet.'); if (pendingLogs.length) flush();
+    if (mode === 'user') toast('Connected and up to date.');
+  }, err => { setSync('Working on this device. ' + err.message); if (mode === 'user') toast('Could not reach the Sheet: ' + err.message); });
+}
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* ignore */ }
+load('boot');
+</script>
+</body>
+</html>
