@@ -16,6 +16,7 @@
 [data-theme="oxblood"] { --bg:#150b0b; --bg2:#1e1011; --card:#271416; --card2:#30191b; --line:#4a2427; --text:#f0ddd3; --dim:#b39389; --accent:#cf6a55; --accent2:#7d2e27; }
 [data-theme="verdigris"] { --bg:#0d1412; --bg2:#121d1a; --card:#172621; --card2:#1d2f29; --line:#2b4038; --text:#dfe9dd; --dim:#93a89b; --accent:#74b99d; --accent2:#3e7a66; }
 [data-theme="midnight"] { --bg:#090d17; --bg2:#0e1422; --card:#131b2c; --card2:#182237; --line:#26324c; --text:#dde3f0; --dim:#8e9ab3; --accent:#b9c7ea; --accent2:#5867a0; }
+[data-theme="moss"] { --bg:#0f120c; --bg2:#151a10; --card:#1b2214; --card2:#212a19; --line:#34402a; --text:#e4e8d6; --dim:#9aa58a; --accent:#a9bd6e; --accent2:#5e7040; }
 [data-theme="gilt"] { --bg:#0b0a08; --bg2:#13110d; --card:#1a1712; --card2:#211d16; --line:#3b3220; --text:#f3e9cf; --dim:#a99c7c; --accent:#e4bf5c; --accent2:#9b7a2a; }
 * { box-sizing:border-box; }
 html, body { margin:0; background:var(--bg); color:var(--text); }
@@ -176,6 +177,14 @@ body::after { content:""; position:fixed; inset:0; pointer-events:none; z-index:
 .ach .num { position:absolute; top:6px; right:9px; font-family:"Cormorant Garamond", serif; font-size:12px; color:var(--accent2); }
 .ach.sealed b { color:var(--dim); font-style:italic; }
 .orn { text-align:center; color:var(--accent2); letter-spacing:.7em; font-size:12px; margin:16px 0 0; }
+.chosen { display:flex; gap:12px; align-items:center; background:var(--card); border:1px solid var(--accent2); border-radius:12px; padding:10px 14px; margin-bottom:10px; }
+details.more { margin-top:8px; } details.more > summary, .wingd > summary { color:var(--accent); font-variant:small-caps; letter-spacing:.05em; padding:8px 2px; }
+.wingd { margin-left:6px; border-left:1px solid var(--line); padding-left:10px; } .wingd > summary { color:var(--text); font-variant:normal; letter-spacing:0; } .wingd > summary small { color:var(--dim); }
+details > summary::before { content:"▸ "; color:var(--accent2); } details[open] > summary::before { content:"▾ "; }
+.goalbtn { display:block; width:100%; text-align:left; background:none; border:none; border-top:1px solid var(--line); padding:10px 0; }
+.goalbtn:first-child { border-top:none; }
+.rekindle { border-style:dashed; border-color:var(--accent2); }
+.chron .centry { padding:8px 0; border-top:1px solid var(--line); } .chron .centry:first-child { border-top:none; }
 .loading { text-align:center; padding:80px 20px; color:var(--dim); font-style:italic; }
 </style>
 </head>
@@ -226,8 +235,8 @@ const STATS = {
   wonder: {n: 'Wonder', d: 'Fun, cooking, gardening, the sky. Improves finds.', c: '#9b86c9'}
 };
 const SK = Object.keys(STATS);
-const SCHED = {daily: 'Daily', weekdays: 'Weekdays', everyn: 'Every N days', perweek: 'Times per week', weekly: 'Weekly', weekends: 'Weekends', monthly: 'Monthly', anytime: 'Anytime'};
-const RIT_INK = {daily: 10, weekdays: 10, everyn: 15, perweek: 20, weekly: 40, weekends: 40, monthly: 60, anytime: 20};
+const SCHED = {daily: 'Daily', weekdays: 'Weekdays', everyn: 'Every N days', perweek: 'Times per week', weekly: 'Weekly', weekends: 'Weekends', monthly: 'Monthly', anytime: 'Moment'};
+const RIT_INK = {daily: 5, weekdays: 5, everyn: 8, perweek: 10, weekly: 20, weekends: 20, monthly: 30, anytime: 8};
 const SLOTS = {head: 'Head', eyes: 'Eyes', neck: 'Neck', body: 'Coat', hand: 'In hand', satchel: 'Satchel', familiar: 'Familiar'};
 const GEAR = [
   ['cap', 'Tweed flat cap', 'head', 'c', {order: 1}], ['brim', 'Wide-brimmed hat', 'head', 'u', {wonder: 2}], ['hood', "Archer's hood", 'head', 'r', {vigour: 3}],
@@ -236,42 +245,52 @@ const GEAR = [
   ['cord', 'Corduroy jacket', 'body', 'c', {craft: 1}], ['wax', 'Waxed field coat', 'body', 'u', {vigour: 2}], ['gown', 'Academic gown', 'body', 'r', {scholarship: 3}],
   ['pen', 'Fountain pen', 'hand', 'c', {craft: 1}], ['trowel', 'Trowel', 'hand', 'c', {wonder: 1}], ['bow', 'Recurve bow', 'hand', 'u', {vigour: 2}], ['dumbbell', 'Iron dumbbell', 'hand', 'u', {vigour: 2}], ['mirror', 'Laryngeal mirror', 'hand', 'r', {craft: 3}],
   ['canvas', 'Canvas satchel', 'satchel', 'c', {order: 1}], ['leather', 'Leather satchel', 'satchel', 'u', {order: 2}], ['docbag', "Doctor's bag", 'satchel', 'r', {craft: 2, order: 1}],
-  ['raven', 'Raven', 'familiar', 'u', {wonder: 2}], ['cat', 'Black cat', 'familiar', 'u', {hearth: 2}], ['owl', 'Barn owl', 'familiar', 'r', {scholarship: 3}]
+  ['raven', 'Raven', 'familiar', 'u', {wonder: 2}], ['cat', 'Black cat', 'familiar', 'u', {hearth: 2}], ['owl', 'Barn owl', 'familiar', 'r', {scholarship: 3}], ['fox', 'Grey fox', 'familiar', 'r', {wonder: 2, hearth: 1}]
 ].map(([id, n, slot, r, b]) => ({id, n, slot, r, b}));
 const GEAR_BY = Object.fromEntries(GEAR.map(g => [g.id, g]));
 const PRICE = {c: 300, u: 900, r: 2500};
 const RAR = {c: 'Common', u: 'Uncommon', r: 'Rare'};
 
 const TREE = [
-  {b: 'Discipline', d: 'The focus timer', nodes: [
-    {id: 'd1', n: 'Momentum', d: 'Start again within 15 minutes of finishing: +10% per session, up to +30%.', cost: 150},
-    {id: 'd2', n: 'Deep work', d: 'Sessions of 45 minutes or more earn +15%.', cost: 500, req: ['d1']},
-    {id: 'd3', n: 'Loose ends', d: 'Mark unfinished work after a session and tie it off later. A clean day pays +40.', cost: 500, req: ['d1']},
-    {id: 'd4', n: 'Unbroken', d: 'Momentum can build to +60%.', cost: 2500, req: ['d2']},
-    {id: 'd5', n: 'The long hour', d: 'Sessions of 90 minutes or more earn +25% on top.', cost: 8000, req: ['d4']}]},
+  {b: 'Discipline', d: 'Starting, coming back and stopping', nodes: [
+    {id: 'd0', n: 'First spark', d: 'Your first focus session of 10 minutes or more each day earns +20 ink.', cost: 100},
+    {id: 'd1', n: 'Momentum', d: 'Start again within 15 minutes of finishing: +5% per session, up to +20%.', cost: 150, req: ['d0']},
+    {id: 'd6', n: 'The way back', d: 'Coming back after an interruption earns +15 ink, once per session.', cost: 300, req: ['d0']},
+    {id: 'd2', n: 'Deep work', d: 'Sessions of 45 minutes or more earn +10%.', cost: 500, req: ['d1']},
+    {id: 'd7', n: 'The closing bell', d: 'Finish a session within 15 minutes of your evening bell: +20 ink, once a day.', cost: 800, req: ['d6']}]},
   {b: 'Constitution', d: 'Rituals and the body', nodes: [
     {id: 'c1', n: 'Steady hand', d: 'Rituals earn +20%.', cost: 150},
+    {id: 'c6', n: 'Second wind', d: 'Pick a ritual back up after missing it: +15 ink.', cost: 400, req: ['c1']},
     {id: 'c2', n: 'Grace', d: 'Streaks forgive two missed periods in a row, not one.', cost: 500, req: ['c1']},
-    {id: 'c3', n: 'Full set', d: 'Tick every ritual due today for +50.', cost: 1500, req: ['c1']},
-    {id: 'c4', n: 'Iron will', d: 'Condition never falls below 65%.', cost: 1500, req: ['c2']},
-    {id: 'c5', n: 'Second nature', d: 'Rituals on a streak of 30 or more earn double.', cost: 8000, req: ['c3', 'c4']}]},
+    {id: 'c3', n: 'Full set', d: 'Tick every ritual due today: +30 ink.', cost: 1500, req: ['c2']},
+    {id: 'c4', n: 'Iron will', d: 'Condition never falls below 65%.', cost: 1500, req: ['c6']}]},
+  {b: 'The Workshop', d: 'Craft: making, practice and mastery', nodes: [
+    {id: 'k1', n: 'First stroke', d: 'Your first Craft session or deed each day earns +20%.', cost: 150},
+    {id: 'k2', n: 'The practised hand', d: 'Workshop activities on three different days in a week: +75 ink, once a week.', cost: 600, req: ['k1']},
+    {id: 'k3', n: "Maker's mark", d: 'Milestones in pursuits linked to Workshop activities earn +100 and a mark in the Chronicle.', cost: 2000, req: ['k2']}]},
+  {b: 'Stewardship', d: 'Order: getting things under control', nodes: [
+    {id: 't1', n: 'The threshold', d: 'Your first Order session or deed each weekday earns +20%.', cost: 150},
+    {id: 't2', n: 'Closing the ledger', d: 'Unlocks loose ends. Tying one off earns +15 ink, up to three a day.', cost: 500, req: ['t1']},
+    {id: 't3', n: 'A house in order', d: 'Weekly review plus three different Order rituals in the same week: +100 ink.', cost: 2000, req: ['t2']}]},
   {b: 'Hearth', d: 'Rebecca and the girls', nodes: [
-    {id: 'h1', n: 'Fireside', d: 'Hearth activities and rituals earn +25%.', cost: 300},
-    {id: 'h2', n: 'Weekend rites', d: 'Everything Hearth earns double at weekends.', cost: 1500, req: ['h1']},
-    {id: 'h3', n: 'Family portrait', d: 'Your portrait sits by a lit hearth.', cost: 4000, req: ['h2']}]},
+    {id: 'h1', n: 'Fireside', d: 'Hearth activities and moments earn +15%.', cost: 300},
+    {id: 'h2', n: 'Keepsakes', d: 'After a Hearth moment or session, keep a one-line memory in the Chronicle.', cost: 800, req: ['h1']},
+    {id: 'h3', n: 'Family portrait', d: 'Your portrait sits by a lit hearth.', cost: 2500, req: ['h2']}]},
   {b: 'Scholarship', d: 'Research on the side', nodes: [
-    {id: 's1', n: 'Marginalia', d: 'Scholarship activities and rituals earn +25%.', cost: 300},
-    {id: 's2', n: 'Side project', d: 'Scholarship outside 9 to 5 on weekdays earns +25% more.', cost: 1500, req: ['s1']},
-    {id: 's3', n: 'Institute press', d: 'All pursuits progress 25% faster.', cost: 4000, req: ['s2']}]},
-  {b: 'Wonder', d: 'Finds and curiosities', nodes: [
-    {id: 'w1', n: 'Cabinet of curiosities', d: 'Gear turns up 50% more often.', cost: 300},
-    {id: 'w2', n: 'Night sky', d: 'Unlocks the Midnight theme.', cost: 1000, req: ['w1']},
-    {id: 'w3', n: "Curator's eye", d: 'Rare finds twice as likely.', cost: 4000, req: ['w1']}]},
-  {b: 'Outfitter', d: 'Gear and appearance', nodes: [
-    {id: 'o1', n: 'Tailor', d: 'Opens the Outfitter: buy gear with ink.', cost: 400},
-    {id: 'o2', n: 'Familiar', d: 'A companion may join you. Opens the familiar slot.', cost: 2000, req: ['o1']},
-    {id: 'o3', n: 'Fine tailoring', d: 'Gear stat bonuses +50%.', cost: 6000, req: ['o2']}]}
+    {id: 's1', n: 'Marginalia', d: 'Scholarship activities and rituals earn +15%.', cost: 300},
+    {id: 's2', n: 'Self-directed', d: 'Research development, data analysis and academic publishing earn +15% more, any time of day.', cost: 1500, req: ['s1']},
+    {id: 's3', n: 'Institute press', d: 'Pursuit milestones pay 50% more ink.', cost: 3000, req: ['s2']}]},
+  {b: 'Wonder', d: 'Curiosity and the night sky', nodes: [
+    {id: 'w4', n: 'New territory', d: 'Your first ever session or deed in an activity earns +75 ink.', cost: 600},
+    {id: 'w2', n: 'Night sky', d: 'Unlocks the Midnight theme.', cost: 1000, req: ['w4']}]},
+  {b: 'The Cabinet', d: 'Gear, finds and your familiar', nodes: [
+    {id: 'o1', n: 'Tailor', d: 'Opens the Outfitter: buy gear with ink.', cost: 150},
+    {id: 'o2', n: 'Familiar', d: 'A companion joins you and matures as you reach pursuit milestones.', cost: 600, req: ['o1']},
+    {id: 'w1', n: 'Cabinet of curiosities', d: 'Gear turns up 50% more often.', cost: 800, req: ['o1']},
+    {id: 'w3', n: "Curator's eye", d: 'Rare finds twice as likely.', cost: 3000, req: ['w1']},
+    {id: 'o3', n: 'Fine tailoring', d: 'Gear stat bonuses +50%.', cost: 5000, req: ['o2']}]}
 ];
+const OLD_TREE_COST = {d1: 150, d2: 500, d3: 500, d4: 2500, d5: 8000, c1: 150, c2: 500, c3: 1500, c4: 1500, c5: 8000, h1: 300, h2: 1500, h3: 4000, s1: 300, s2: 1500, s3: 4000, w1: 300, w2: 1000, w3: 4000, o1: 400, o2: 2000, o3: 6000};
 const NODE = {}; TREE.forEach(B => B.nodes.forEach(n => { NODE[n.id] = {...n, branch: B.b}; }));
 
 const ACH = [
@@ -300,18 +319,19 @@ const ACH = [
   ['hearth25', 'Keeper of the flame', '25 Hearth logs', s => (s.c.byStat.hearth || 0) >= 25, 300],
   ['hearth100', 'The warmest room', '100 Hearth logs', s => (s.c.byStat.hearth || 0) >= 100, 1500],
   ['vig50', 'Body and soul', '50 Vigour logs', s => (s.c.byStat.vigour || 0) >= 50, 300],
-  ['train36', 'Twelve weeks under the bar', 'Tick Training 36 times', s => ritCountByName(s, 'training') >= 36, 1000],
+  ['train36', 'Twelve weeks under the bar', '36 training days within twelve weeks', s => maxInWindow(trainingDays(s), 84) >= 36, 1000],
   ['arch10', 'Ten ends shot', 'Archery logged 10 times', s => nameCount(s, 'archery') >= 10, 400],
   ['review12', 'A quarter reviewed', '12 weekly reviews', s => ritCountByName(s, 'weekly review') >= 12, 600],
   ['schol50', 'Fifty hours on the side', '50 hours of Scholarship focus', s => (s.c.focusByStat.scholarship || 0) >= 3000, 1500],
   ['clean', 'A clean day', 'Tie off every loose end in a day', s => s.c.cleanDays >= 1, 150],
+  ['homecoming', 'Homecoming', 'Come back after seven days or more away', s => s.c.prodigal >= 1, 100],
   ['poly5', 'Polymath', 'Every stat at level 5', s => SK.every(k => statLevelS(s, k) >= 5), 500],
   ['poly20', 'Renaissance Fellow', 'Every stat at level 20', s => SK.every(k => statLevelS(s, k) >= 20), 5000]
 ].map(([id, n, d, test, reward, theme]) => ({id, n, d, test, reward, theme}));
 
 const TITLES = ['Visitor', 'Reader', 'Junior Fellow', 'Fellow', 'Research Fellow', 'Senior Fellow', 'Keeper', 'Reader in Curiosities', 'Professor', 'Dean', 'Provost', 'Director'];
 const PURSUIT = ['Begun', 'Practising', 'Steady', 'Capable', 'Accomplished', 'Expert', 'Master', 'Luminary'];
-const THEMES = {ink: 'Ink and walnut', oxblood: 'Oxblood', verdigris: 'Verdigris', midnight: 'Midnight', gilt: 'Gilt'};
+const THEMES = {ink: 'Ink and walnut', oxblood: 'Oxblood', verdigris: 'Verdigris', moss: 'Moss and lichen', midnight: 'Midnight', gilt: 'Gilt'};
 const FACES = {ring: 'Brass ring', candle: 'Candle', orrery: 'Orrery'};
 const LINES = {
   morning: ['Good morning. The lamps are lit. What is due today is listed below; start with the easiest.', 'Morning, Fellow. Draw back the curtains; the card of the day is waiting.', 'Morning. One tick is enough to get the day moving.', 'The porters have unlocked the east wing. Teeth first, then the world.'],
@@ -356,9 +376,10 @@ function schedKey(s) {
   if (t.includes('any') || t.includes('whenever')) return 'anytime'; return 'daily';
 }
 function parseConfig(raw) {
-  const acts = (raw.activities || []).filter(r => r[0] && truthy(r[3] == null ? true : r[3])).map(r => ({id: 'a:' + slug(r[0]), name: String(r[0]).trim(), wing: String(r[1] || 'Other').trim(), stat: statKey(r[2])}));
-  const rits = (raw.rituals || []).filter(r => r[0] && truthy(r[4] == null ? true : r[4])).map(r => { const s = schedKey(r[2]); return {id: 'r:' + slug(r[0]), name: String(r[0]).trim(), stat: statKey(r[1]), sched: s, n: Math.max(1, Number(r[3]) || (s === 'everyn' ? 2 : s === 'perweek' ? 3 : 1))}; });
-  const goals = (raw.goals || []).filter(r => r[0] && truthy(r[2] == null ? true : r[2])).map(r => ({id: 'g:' + slug(r[0]), name: String(r[0]).trim(), links: String(r[1] || '').split(',').map(x => slug(x)).filter(Boolean)}));
+  const on = (v, dflt) => v === '' || v == null ? dflt : truthy(v);
+  const acts = (raw.activities || []).filter(r => r[0] && on(r[3], true)).map(r => ({id: 'a:' + slug(r[0]), name: String(r[0]).trim(), wing: String(r[1] || 'Other').trim(), stat: statKey(r[2]), rekindle: on(r[4], false)}));
+  const rits = (raw.rituals || []).filter(r => r[0] && on(r[4], true)).map(r => { const s = schedKey(r[2]); return {id: 'r:' + slug(r[0]), name: String(r[0]).trim(), stat: statKey(r[1]), sched: s, n: Math.max(1, Number(r[3]) || (s === 'everyn' ? 2 : s === 'perweek' ? 3 : 1)), links: String(r[5] || '').split(',').map(x => slug(x)).filter(Boolean)}; });
+  const goals = (raw.goals || []).filter(r => r[0]).map(r => ({id: 'g:' + slug(r[0]), name: String(r[0]).trim(), links: String(r[1] || '').split(',').map(x => slug(x)).filter(Boolean), active: on(r[2], true), ms: String(r[3] || '').split(';').map(x => x.trim()).filter(Boolean)}));
   return {activities: acts, rituals: rits, goals};
 }
 const actById = id => CFG.activities.find(a => a.id === id);
@@ -369,17 +390,21 @@ function blank() {
   return {
     v: 3, created: Date.now(), updatedAt: 0, ink: 0, xp: 0,
     stat: Object.fromEntries(SK.map(k => [k, {xp: 0, last: ''}])),
-    rit: {}, ritCount: {}, actMin: {}, actCount: {}, actDeed: {}, days: {}, tree: {}, gear: {owned: {}, eq: {}}, ach: {}, loose: {},
-    c: {sessions: 0, focusMin: 0, deeds: 0, rituals: 0, longest: 0, fullDays: 0, bestStreak: 0, cleanDays: 0, byStat: {}, focusByStat: {}, early: 0, late: 0, maxMom: 1, favoured: 0, fullMoon: 0, prodigal: 0},
+    rit: {}, ritCount: {}, actMin: {}, actCount: {}, actDeed: {}, actDays: {}, ms: {}, once: {}, cnt: {}, chron: [], treeV: 5, days: {}, tree: {}, gear: {owned: {}, eq: {}}, ach: {}, loose: {},
+    c: {sessions: 0, focusMin: 0, deeds: 0, rituals: 0, longest: 0, fullDays: 0, bestStreak: 0, cleanDays: 0, byStat: {}, focusByStat: {}, early: 0, late: 0, maxMom: 1, favoured: 0, fullMoon: 0, prodigal: 0, short: 0, returns: 0, interruptions: 0, threads: 0, bell: 0, milestones: 0, pursuitsDone: 0, workshopMs: 0, rekindled: 0, comebacks: 0},
     marks: {hw: [], seasons: {}, lastOpen: ''},
     fullDays: [], cleanDays: [], ties: {}, momentum: 1, lastEnd: 0, active: null, recent: [], themes: ['ink'],
-    settings: {sound: true, face: 'ring', theme: 'ink', dur: 25, act: '', name: 'The Fellow', look: {skin: 'light', hair: 'brown', style: 'short', beard: 'stubble'}},
+    settings: {sound: true, face: 'ring', theme: 'ink', dur: 25, act: '', bell: '22:00', name: 'The Fellow', look: {skin: 'light', hair: 'brown', style: 'short', beard: 'stubble'}},
     seenIntro: false
   };
 }
 function normalise(o) {
+  const inV = o && o.treeV;
   const b = blank(); o = Object.assign(b, o || {});
-  for (const k of ['stat', 'rit', 'ritCount', 'actMin', 'actCount', 'actDeed', 'days', 'tree', 'ach', 'loose', 'ties']) if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {};
+  if (inV !== 5 && o.tree && Object.keys(o.tree).length) { let refund = 0; for (const [id, lv] of Object.entries(o.tree || {})) { if (id === 'e') { for (let i = 0; i < lv; i++) refund += Math.round(3000 * Math.pow(1.4, i)); } else refund += OLD_TREE_COST[id] || 0; } o.tree = {}; o.ink = (o.ink || 0) + refund; o.treeRefund = refund; }
+  o.treeV = 5;
+  if (!Array.isArray(o.chron)) o.chron = [];
+  for (const k of ['stat', 'rit', 'ritCount', 'actMin', 'actCount', 'actDeed', 'actDays', 'ms', 'once', 'cnt', 'days', 'tree', 'ach', 'loose', 'ties']) if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {};
   SK.forEach(k => { if (!o.stat[k]) o.stat[k] = {xp: 0, last: ''}; });
   o.gear = Object.assign({owned: {}, eq: {}}, o.gear || {});
   o.c = Object.assign(blank().c, o.c || {}); o.c.byStat = o.c.byStat || {}; o.c.focusByStat = o.c.focusByStat || {};
@@ -448,11 +473,9 @@ function cond(k) {
 }
 function gearBonus(k) { let b = 0; for (const id of Object.values(S.gear.eq)) { const g = GEAR_BY[id]; if (g && g.b[k]) b += g.b[k]; } return b * (S.tree.o3 ? 1.5 : 1); }
 const effStat = k => statLevel(k) * cond(k) + gearBonus(k);
-function inkMult(k) { return (1 + .01 * effStat(k)) * (1 + .005 * effStat('vigour')) * (1 + .03 * (S.tree.e || 0)) * cardBonus(k); }
 const ritCountByName = (s, name) => Object.entries(s.ritCount).filter(([id]) => id === 'r:' + slug(name)).reduce((a, [, n]) => a + n, 0);
 const nameCount = (s, name) => ritCountByName(s, name) + (s.actCount['a:' + slug(name)] || 0);
 const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
-const isHearthWeekend = (k) => k === 'hearth' && S.tree.h2 && isWeekend(new Date());
 
 /* ============ rituals ============ */
 const doneDates = id => S.rit[id] || [];
@@ -501,90 +524,173 @@ function dueToday() { return CFG.rituals.filter(r => isDue(r)); }
 function doneToday() { const t = ymd(); return CFG.rituals.filter(r => doneOn(r.id, t)); }
 
 /* ============ earning ============ */
-function touchStat(k, xp) {
-  S.stat[k].xp += xp; S.stat[k].last = ymd();
-  S.c.byStat[k] = (S.c.byStat[k] || 0) + 1;
-}
+function touchStat(k, xp) { S.stat[k].xp += xp; S.stat[k].last = ymd(); S.c.byStat[k] = (S.c.byStat[k] || 0) + 1; }
 function addDay(field, v) { const t = ymd(); S.days[t] = S.days[t] || {focus: 0, ink: 0, rituals: 0, deeds: 0}; S.days[t][field] = (S.days[t][field] || 0) + v; }
-function earn(amount, k) {
+function earn(amount) {
   const before = fellowLevel(S.xp);
   S.ink += amount; S.xp += amount; addDay('ink', amount);
-  return fellowLevel(S.xp) > before ? fellowLevel(S.xp) : 0;
+  const after = fellowLevel(S.xp);
+  for (let L = before + 1; L <= after; L++) if (L % 5 === 0) chron(`Fellow level ${L}`, `The Fellow is now known as ${titleFor(L)}.`);
+  return after > before ? after : 0;
 }
+function bonus(amount) { S.ink += amount; S.xp += amount; addDay('ink', amount); }
+function chron(title, text) { S.chron.unshift({t: Date.now(), title, text: text || ''}); if (S.chron.length > 400) S.chron.length = 400; }
 function pushRecent(e) { S.recent.unshift(e); if (S.recent.length > 80) S.recent.length = 80; }
+function onceToday(key) { const t = ymd(); if (S.once[key] === t) return false; S.once[key] = t; return true; }
+function onceWeek(key) { const w = weekStart(new Date()); if (S.once[key] === w) return false; S.once[key] = w; return true; }
+function capToday(key, max) { const t = ymd(), c = S.cnt[key], n = c && c.d === t ? c.n : 0; if (n >= max) return false; S.cnt[key] = {d: t, n: n + 1}; return true; }
+function basePct(k) { const c = cardOfDay(); return .01 * effStat(k) + .005 * effStat('vigour') + .03 * (S.tree.e || 0) + (c.stat === 'all' ? .1 : c.stat === k ? .2 : 0); }
+function nodePct(a, parts) {
+  let p = 0; const k = a.stat, s = slug(a.name), add = (v, label) => { p += v; if (parts) parts.push(label); };
+  if (k === 'hearth' && S.tree.h1) add(.15, 'Fireside');
+  if (k === 'scholarship' && S.tree.s1) add(.15, 'Marginalia');
+  if (S.tree.s2 && ['research-development', 'data-analysis', 'academic-publishing'].includes(s)) add(.15, 'Self-directed');
+  if (k === 'craft' && S.tree.k1 && onceToday('k1')) add(.2, 'First stroke');
+  if (k === 'order' && S.tree.t1 && !isWeekend(new Date()) && onceToday('t1')) add(.2, 'The threshold');
+  return p;
+}
 function dropGear(chanceBase) {
-  let p = chanceBase * (S.tree.w1 ? 1.5 : 1) * (1 + .02 * effStat('wonder')) * (cardOfDay().name === 'Wheel of Fortune' ? 2 : 1);
+  const p = chanceBase * (S.tree.w1 ? 1.5 : 1) * (1 + .02 * effStat('wonder')) * (cardOfDay().name === 'Wheel of Fortune' ? 2 : 1);
   if (Math.random() > p) return null;
   const rp = (S.tree.w3 ? .24 : .12), roll = Math.random(), r = roll < rp ? 'r' : roll < rp + .35 ? 'u' : 'c';
-  let pool = GEAR.filter(g => g.r === r && (g.slot !== 'familiar' || S.tree.o2));
+  const pool = GEAR.filter(g => g.r === r && (g.slot !== 'familiar' || S.tree.o2));
   const fresh = pool.filter(g => !S.gear.owned[g.id]);
-  if (!fresh.length) { S.ink += {c: 60, u: 150, r: 400}[r]; return {dupe: true, r, ink: {c: 60, u: 150, r: 400}[r]}; }
-  const g = pick(fresh); S.gear.owned[g.id] = true; return g;
+  if (!fresh.length) { const v = {c: 60, u: 150, r: 400}[r]; bonus(v); return {dupe: true, r, ink: v}; }
+  const g = pick(fresh); S.gear.owned[g.id] = true;
+  if (g.r === 'r') chron(`Found: ${g.n}`, 'A rare piece for the Cabinet.');
+  return g;
 }
 function checkAch() {
   const got = [];
   for (const a of ACH) if (!S.ach[a.id] && a.test(S)) {
-    S.ach[a.id] = ymd(); S.ink += a.reward; S.xp += a.reward;
+    S.ach[a.id] = ymd(); bonus(a.reward);
     if (a.theme && !S.themes.includes(a.theme)) S.themes.push(a.theme);
+    if (a.h || a.reward >= 500) chron(`Achievement: ${a.n}`, a.d + '.');
     got.push(a);
   }
-  got.forEach(a => toast(`Achievement: ${a.n}. +${a.reward} ink${a.theme ? ', new theme' : ''}.`));
+  got.forEach(a => toast(`Achievement: ${a.n}. +${num(a.reward)} ink${a.theme ? ', new theme' : ''}.`));
   return got;
 }
 function updateBestStreak() { for (const r of CFG.rituals) S.c.bestStreak = Math.max(S.c.bestStreak, streak(r)); }
-
+function missedLast(r) {
+  const ds = doneDates(r.id); if (!ds.length || r.sched === 'anytime') return false;
+  const last = ds[ds.length - 1], now = new Date(), t = ymd(now);
+  switch (r.sched) {
+    case 'daily': return daysBetween(last, t) > 1;
+    case 'weekdays': { let d = addDays(now, -1); while (isWeekend(d)) d = addDays(d, -1); return last < ymd(d); }
+    case 'everyn': return daysBetween(last, t) > r.n + 1;
+    case 'perweek': case 'weekly': case 'weekends': return last < weekStart(now) && countInPeriod(r, addDays(now, -7)) < (r.sched === 'perweek' ? r.n : 1);
+    case 'monthly': return last.slice(0, 7) < t.slice(0, 7) && countInPeriod(r, new Date(now.getFullYear(), now.getMonth() - 1, 1)) < 1;
+  }
+  return false;
+}
+function houseInOrder() {
+  const wk = weekStart(new Date()), doneWk = r => doneDates(r.id).some(d => weekStart(parseYmd(d)) === wk);
+  const wr = CFG.rituals.find(r => slug(r.name) === 'weekly-review');
+  return !!wr && doneWk(wr) && CFG.rituals.filter(r => r.stat === 'order' && doneWk(r)).length >= 3;
+}
+function doTick(r, auto) {
+  const t = ymd(), missed = missedLast(r);
+  S.rit[r.id] = (S.rit[r.id] || []).concat(t).slice(-500);
+  S.ritCount[r.id] = (S.ritCount[r.id] || 0) + 1;
+  const pct = basePct(r.stat) + (S.tree.c1 ? .2 : 0) + (r.stat === 'hearth' && S.tree.h1 ? .15 : 0) + (r.stat === 'scholarship' && S.tree.s1 ? .15 : 0);
+  let gain = Math.round(RIT_INK[r.sched] * (1 + pct));
+  touchStat(r.stat, RIT_INK[r.sched]); noteEvent(r.stat, 'ritual');
+  const lv = earn(gain); S.c.rituals++; addDay('rituals', 1);
+  const msgs = [];
+  if (missed) { S.c.comebacks++; if (S.tree.c6) { bonus(15); gain += 15; msgs.push('Second wind +15'); } }
+  const due = CFG.rituals.filter(x => x.sched !== 'anytime' && (isDue(x) || doneOn(x.id, t)));
+  if (due.length && due.every(x => doneOn(x.id, t)) && !S.fullDays.includes(t)) { S.fullDays.push(t); S.c.fullDays++; if (S.tree.c3) { bonus(30); msgs.push('Full set +30'); } else msgs.push('Every ritual due today is done'); }
+  if (S.tree.t3 && houseInOrder() && onceWeek('t3')) { bonus(100); msgs.push('A house in order +100'); }
+  const g = ['weekly', 'weekends', 'monthly'].includes(r.sched) ? dropGear(.08) : null;
+  updateBestStreak();
+  const type = r.sched === 'anytime' ? 'moment' : 'ritual';
+  pushRecent({t: Date.now(), type, name: r.name, ink: gain, stat: r.stat});
+  save(logRow(type, r.name, '', gain, r.stat, auto ? 'ticked by activity' : ''));
+  return {gain, lv, msgs, g};
+}
 function tickRitual(id) {
   const r = ritById(id); if (!r) return;
-  const t = ymd();
-  if (doneOn(id, t)) { untick(id); return; }
-  S.rit[id] = (S.rit[id] || []).concat(t).slice(-500);
-  S.ritCount[id] = (S.ritCount[id] || 0) + 1;
-  const st = streak(r);
-  let mult = inkMult(r.stat) * (S.tree.c1 ? 1.2 : 1);
-  if (r.stat === 'hearth' && S.tree.h1) mult *= 1.25;
-  if (r.stat === 'scholarship' && S.tree.s1) mult *= 1.25;
-  if (isHearthWeekend(r.stat)) mult *= 2;
-  if (S.tree.c5 && st >= 30) mult *= 2;
-  const streakBonus = 1 + Math.min(.5, st * .02);
-  const gain = Math.round(RIT_INK[r.sched] * mult * streakBonus);
-  touchStat(r.stat, RIT_INK[r.sched]); noteEvent(r.stat, 'ritual');
-  const lv = earn(gain, r.stat);
-  S.c.rituals++; addDay('rituals', 1);
-  let extra = '';
-  const due = CFG.rituals.filter(x => x.sched !== 'anytime' && (isDue(x) || doneOn(x.id, t)));
-  if (due.length && due.every(x => doneOn(x.id, t)) && !S.fullDays.includes(t)) {
-    S.fullDays.push(t); S.c.fullDays++;
-    if (S.tree.c3) { S.ink += 50; S.xp += 50; extra = ' Full set: +50.'; } else extra = ' Every ritual due today is done.';
-  }
-  let g = null; if (r.sched === 'weekly' || r.sched === 'weekends' || r.sched === 'monthly') g = dropGear(.1);
-  updateBestStreak();
-  pushRecent({t: Date.now(), type: 'ritual', name: r.name, ink: gain, stat: r.stat});
-  save(logRow('ritual', r.name, '', gain, r.stat, st > 1 ? `streak ${st}` : ''));
+  if (doneOn(id, ymd())) { untick(id); return; }
+  const res = doTick(r, false), st = streak(r);
   checkAch(); renderAll();
-  toast(`${r.name}: +${gain} ink${st > 1 ? `, streak ${st}` : ''}.${extra}${lv ? ` Fellow level ${lv}!` : ''}${g && !g.dupe ? ` Found: ${g.n}!` : ''}`);
+  toast(`${r.name}: +${res.gain} ink${st > 1 && r.sched !== 'anytime' ? ` · ${st} in a row` : ''}.${res.msgs.length ? ' ' + res.msgs.join('. ') + '.' : ''}${res.lv ? ` Fellow level ${res.lv}!` : ''}${res.g && !res.g.dupe ? ` Found: ${res.g.n}!` : ''}`);
+  if (r.stat === 'hearth' && r.sched === 'anytime' && S.tree.h2) keepsakeSheet(r.name);
 }
 function untick(id) {
   const r = ritById(id), t = ymd();
   S.rit[id] = (S.rit[id] || []).filter(x => x !== t);
   S.ritCount[id] = Math.max(0, (S.ritCount[id] || 1) - 1);
-  const e = S.recent.find(x => x.type === 'ritual' && x.name === r.name && ymd(new Date(x.t)) === t);
+  const e = S.recent.find(x => (x.type === 'ritual' || x.type === 'moment') && x.name === r.name && ymd(new Date(x.t)) === t);
   if (e) { S.ink = Math.max(0, S.ink - e.ink); S.xp = Math.max(0, S.xp - e.ink); S.stat[r.stat].xp = Math.max(0, S.stat[r.stat].xp - RIT_INK[r.sched]); S.recent.splice(S.recent.indexOf(e), 1); }
   S.c.rituals = Math.max(0, S.c.rituals - 1); addDay('rituals', -1);
   save(logRow('undo', r.name, '', e ? -e.ink : 0, r.stat, 'unticked')); renderAll(); toast(`${r.name} unticked.`);
 }
+/* Everything that should happen whenever an activity is done, timed or not. */
+function afterActivity(a, extras) {
+  const t = ymd(), days = S.actDays[a.id] || [], first = !days.length, last = days[days.length - 1];
+  if (!days.includes(t)) S.actDays[a.id] = days.concat(t).slice(-400);
+  if (a.rekindle && (first || daysBetween(last, t) >= 30)) {
+    bonus(75); S.c.rekindled++; extras.push('Rekindled +75');
+    chron(`Rekindled: ${a.name}`, first ? 'Something long set aside, taken up again in the Institute.' : `Taken up again after ${daysBetween(last, t)} days.`);
+  } else if (first) {
+    if (S.tree.w4) { bonus(75); extras.push('New territory +75'); }
+    if (['Workshop', 'Delight', 'Garden'].includes(a.wing)) chron(`First entry: ${a.name}`, 'A new door opened in the Institute.');
+  }
+  if (S.tree.k2 && a.wing === 'Workshop') {
+    const wk = weekStart(new Date()), ds = new Set();
+    CFG.activities.filter(x => x.wing === 'Workshop').forEach(x => (S.actDays[x.id] || []).forEach(d => { if (weekStart(parseYmd(d)) === wk) ds.add(d); }));
+    if (ds.size >= 3 && onceWeek('k2')) { bonus(75); extras.push('The practised hand +75'); }
+  }
+  const auto = [];
+  for (const r of CFG.rituals) if (r.links.includes(slug(a.name)) && isDue(r)) { doTick(r, true); auto.push(r.name); }
+  if (auto.length) extras.push(`Ritual ticked: ${auto.join(', ')}`);
+}
 function logDeed(actId, minutes, note) {
   const a = actById(actId); if (!a) return;
-  const m = Math.max(0, Math.round(minutes || 0));
-  let base = m ? m : 15, mult = inkMult(a.stat);
-  if (a.stat === 'hearth' && S.tree.h1) mult *= 1.25; if (a.stat === 'scholarship' && S.tree.s1) mult *= 1.25; if (isHearthWeekend(a.stat)) mult *= 2;
-  const gain = Math.round(base * mult);
-  touchStat(a.stat, base); noteEvent(a.stat, 'deed'); const lv = earn(gain, a.stat);
+  const m = Math.max(0, Math.round(minutes || 0)), base = m || 15;
+  const gain = Math.round(base * (1 + basePct(a.stat) + nodePct(a, null)));
+  touchStat(a.stat, base); noteEvent(a.stat, 'deed'); const lv = earn(gain);
   if (m) S.actMin[a.id] = (S.actMin[a.id] || 0) + m; else S.actDeed[a.id] = (S.actDeed[a.id] || 0) + 1;
   S.actCount[a.id] = (S.actCount[a.id] || 0) + 1; S.c.deeds++; addDay('deeds', 1);
   pushRecent({t: Date.now(), type: 'deed', name: a.name, ink: gain, stat: a.stat, min: m, note});
   save(logRow('deed', a.name, m, gain, a.stat, note));
+  const extras = []; afterActivity(a, extras);
   checkAch(); renderAll();
-  toast(`${a.name}: +${gain} ink. ${LINES.stat[a.stat]}${lv ? ` Fellow level ${lv}!` : ''}`);
+  toast(`${a.name}: +${gain} ink.${extras.length ? ' ' + extras.join('. ') + '.' : ''}${lv ? ` Fellow level ${lv}!` : ''}`);
+  if (a.stat === 'hearth' && S.tree.h2) keepsakeSheet(a.name);
+}
+
+/* ============ pursuits ============ */
+const msKey = (g, i) => slug(g.ms[i]);
+const msDone = (g, i) => !!(S.ms[g.id] && S.ms[g.id][msKey(g, i)]);
+const msCount = g => g.ms.filter((m, i) => msDone(g, i)).length;
+const msInk = (g, i) => Math.round(150 * (1 + .25 * i) * (S.tree.s3 ? 1.5 : 1));
+const linkedToWorkshop = g => g.links.some(l => { const a = CFG.activities.find(x => slug(x.name) === l); return a && a.wing === 'Workshop'; });
+function goalMinutes(g) { let m = 0; for (const a of CFG.activities) if (g.links.includes(slug(a.name))) m += S.actMin[a.id] || 0; return m; }
+function reachMilestone(gid, i, note) {
+  const g = CFG.goals.find(x => x.id === gid); if (!g || msDone(g, i)) return;
+  S.ms[g.id] = S.ms[g.id] || {}; S.ms[g.id][msKey(g, i)] = ymd();
+  const workshop = linkedToWorkshop(g), maker = workshop && S.tree.k3;
+  let ink = msInk(g, i) + (maker ? 100 : 0);
+  S.c.milestones++; if (workshop) S.c.workshopMs++;
+  chron(g.ms[i], `${g.name}.${note ? ' ' + note : ''}${maker ? " The Maker's mark is set on it." : ''}`);
+  const done = msCount(g) === g.ms.length;
+  if (done) { ink += 300; S.c.pursuitsDone++; chron(`Pursuit complete: ${g.name}`, 'Every milestone reached. Recorded in gold leaf.'); }
+  bonus(ink);
+  save(logRow('milestone', g.ms[i], '', ink, '', g.name + (note ? ': ' + note : '')));
+  checkAch(); renderAll();
+  toast(`${done ? 'Pursuit complete! ' : 'Milestone reached. '}+${num(ink)} ink.`);
+}
+function undoMilestone(gid, i) {
+  const g = CFG.goals.find(x => x.id === gid); if (!g || !msDone(g, i)) return;
+  const wasDone = msCount(g) === g.ms.length;
+  delete S.ms[g.id][msKey(g, i)];
+  const back = msInk(g, i) + (wasDone ? 300 : 0);
+  S.ink = Math.max(0, S.ink - back); S.xp = Math.max(0, S.xp - back);
+  S.c.milestones = Math.max(0, S.c.milestones - 1); if (wasDone) S.c.pursuitsDone = Math.max(0, S.c.pursuitsDone - 1);
+  const ci = S.chron.findIndex(c => c.title === g.ms[i]); if (ci >= 0) S.chron.splice(ci, 1);
+  save(logRow('undo', g.ms[i], '', -back, '', g.name)); renderAll(); toast('Milestone unmarked.');
 }
 
 /* ============ focus session ============ */
@@ -599,13 +705,16 @@ function chime() {
 }
 function momentumNow() {
   if (!S.tree.d1 || !S.lastEnd || Date.now() - S.lastEnd > 15 * 60000) return 1;
-  const cap = S.tree.d4 ? 1.6 : 1.3; return Math.min(cap, Math.round((S.momentum + .1) * 10) / 10);
+  return Math.min(1.2, Math.round(((S.momentum || 1) + .05) * 100) / 100);
 }
+function bellTime(d = new Date()) { const b = S.settings.bell; if (!b || !/^\d{1,2}:\d{2}$/.test(b)) return null; const [h, m] = b.split(':').map(Number); const x = new Date(d); x.setHours(h, m, 0, 0); return x; }
+function pastBell(d = new Date()) { const b = bellTime(d); return !!b && d >= b; }
+function inBellWindow(d = new Date()) { const b = bellTime(d); return !!b && d >= b && d - b <= 15 * 60000; }
 const elapsed = a => (a.pauseAt || Date.now()) - a.start - (a.pausedMs || 0);
 function begin(actId, tie) {
   audio(); const a = actById(actId); if (!a) { toast('Pick an activity first.'); return; }
   S.settings.act = actId;
-  S.active = {act: actId, planned: S.settings.dur, start: Date.now(), pausedMs: 0, pauseAt: null, note: tie ? 'Tying off a loose end' : (($('#f-note') && $('#f-note').value.trim()) || '').slice(0, 60), tie: !!tie, mom: momentumNow(), early: new Date().getHours() < 8};
+  S.active = {act: actId, planned: S.settings.dur, start: Date.now(), pausedMs: 0, pauseAt: null, note: tie ? 'Tying off a loose end' : (($('#f-note') && $('#f-note').value.trim()) || '').slice(0, 60), tie: !!tie, mom: momentumNow(), early: new Date().getHours() < 8, returns: 0};
   save();
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => { wake = w; }, () => {}); } catch (e) { /* none */ }
   showRun();
@@ -614,72 +723,81 @@ function showRun() {
   const A = S.active; if (!A) return; const a = actById(A.act) || {name: 'Focus', wing: ''};
   $('#run').innerHTML = `<div class="wrap" id="run-wrap"><div class="run-act">${esc(a.wing)}</div><h2 class="run-name">${esc(a.name)}</h2><div class="muted">${esc(A.note)}</div>
     <div class="face" id="face"></div><div class="time" id="time"></div><div class="muted" id="tsub"></div>
-    <div class="run-btns"><button class="btn" data-act="pause" id="pause-btn">Pause</button><button class="btn primary" data-act="finish">Done</button><button class="btn" data-act="stop">Stop</button></div>
-    ${A.mom > 1 ? `<p class="muted">Momentum +${Math.round((A.mom - 1) * 100)}%</p>` : ''}</div>`;
+    <div class="run-btns"><button class="btn" data-act="pause" id="pause-btn">Interrupted</button><button class="btn primary" data-act="finish">Done</button><button class="btn" data-act="stop">Stop</button></div>
+    <p class="say" id="run-say"></p></div>`;
   $('#run').classList.remove('hidden'); clearInterval(tickTimer); tickTimer = setInterval(tick, 500); tick();
 }
 function hideRun() { $('#run').classList.add('hidden'); clearInterval(tickTimer); }
+function tick() {
+  const A = S.active; if (!A) { hideRun(); return; } const w = $('#run-wrap'); if (!w) return;
+  const el = elapsed(A); w.classList.toggle('paused', !!A.pauseAt); $('#pause-btn').textContent = A.pauseAt ? 'Back to it' : 'Interrupted';
+  const say = A.pauseAt ? 'Paused. Deal with it, then come back: coming back is the skill.' : pastBell() ? 'The evening bell has rung. This is a good place to stop.' : (A.mom > 1 ? `Momentum +${Math.round((A.mom - 1) * 100)}%.` : '');
+  const sy = $('#run-say'); if (sy && sy.textContent !== say) sy.textContent = say;
+  if (A.planned) { const tot = A.planned * 60000, rem = tot - el; if (rem <= 0 && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(rem); $('#tsub').textContent = A.pauseAt ? 'Interrupted' : `of ${A.planned} minutes`; $('#face').innerHTML = faceSVG(Math.max(0, rem / tot)); }
+  else { const cap = 180 * 60000; if (el >= cap && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(el); $('#tsub').textContent = A.pauseAt ? 'Interrupted' : 'open session'; $('#face').innerHTML = faceSVG(1 - (el % 3600000) / 3600000); }
+}
+function complete(kind) {
+  const A = S.active; if (!A) return; const el = elapsed(A);
+  let min = Math.floor(el / 60000); min = A.planned ? Math.min(min, A.planned) : Math.min(min, 180);
+  if (kind === 'done' && A.planned && el >= A.planned * 60000 - 1000) min = A.planned;
+  S.active = null; try { wake && wake.release(); } catch (e) { /* none */ } wake = null; hideRun();
+  if (min < 2) { save(); renderAll(); toast('Under two minutes. The ledger did not notice.'); return; }
+  const a = actById(A.act) || {id: A.act, name: 'Focus', stat: 'order', wing: '', rekindle: false}, k = a.stat;
+  const parts = [`${min} min`];
+  let pct = basePct(k);
+  if (cardBonus(k) > 1) parts.push(cardOfDay().name);
+  pct += nodePct(a, parts);
+  if (A.mom > 1) { pct += A.mom - 1; parts.push(`momentum +${Math.round((A.mom - 1) * 100)}%`); }
+  if (S.tree.d2 && min >= 45) { pct += .1; parts.push('Deep work'); }
+  if (kind === 'done' && A.planned && min >= A.planned) { pct += .1; parts.push('kept to time'); }
+  let gain = Math.round(min * (1 + pct));
+  const flat = [];
+  if (S.tree.d0 && min >= 10 && onceToday('d0')) flat.push(['First spark', 20]);
+  if (A.returns && S.tree.d6) flat.push(['The way back', 15]);
+  if (inBellWindow()) { S.c.bell++; if (S.tree.d7 && onceToday('d7')) flat.push(['The closing bell', 20]); }
+  if (A.tie && S.loose[a.id]) { S.loose[a.id]--; S.c.threads++; const t = ymd(); S.ties[t] = (S.ties[t] || 0) + 1; if (S.tree.t2 && capToday('tie', 3)) flat.push(['Loose end tied', 15]); }
+  flat.forEach(([l, v]) => { gain += v; parts.push(`${l} +${v}`); });
+  const statBefore = statLevel(k);
+  touchStat(k, min); noteEvent(k, 'focus');
+  if (A.early) S.c.early++; if (min >= 10 && min <= 20) S.c.short++;
+  S.c.maxMom = Math.max(S.c.maxMom || 1, A.mom || 1);
+  const lv = earn(gain);
+  S.actMin[a.id] = (S.actMin[a.id] || 0) + min; S.actCount[a.id] = (S.actCount[a.id] || 0) + 1;
+  S.c.sessions++; S.c.focusMin += min; S.c.longest = Math.max(S.c.longest, min); S.c.focusByStat[k] = (S.c.focusByStat[k] || 0) + min; addDay('focus', min);
+  S.momentum = A.mom || 1; S.lastEnd = Date.now();
+  const g = min >= 20 ? dropGear(.06 + min / 600) : null;
+  const clean = A.tie ? checkClean() : false;
+  const extras = []; afterActivity(a, extras);
+  pushRecent({t: Date.now(), type: 'focus', name: a.name, ink: gain, stat: k, min, note: A.note});
+  save(logRow('focus', a.name, min, gain, k, [A.note, kind === 'stop' ? 'stopped' : '', A.returns ? `came back ${A.returns}x` : ''].filter(Boolean).join('; ')));
+  checkAch();
+  if (kind === 'done' && A.planned) chime();
+  showReward({a, k, min, gain, parts, extras, lv, statUp: statLevel(k) > statBefore ? statLevel(k) : 0, g, clean, kind, tie: A.tie});
+}
+function looseTotal() { return Object.values(S.loose).reduce((x, y) => x + (y || 0), 0); }
+function checkClean() { const t = ymd(); if (looseTotal() === 0 && (S.ties[t] || 0) > 0 && !S.cleanDays.includes(t)) { S.cleanDays.push(t); S.c.cleanDays++; return true; } return false; }
+function showReward(x) {
+  const say = x.kind === 'stop' ? fill(pick(LINES.stop), {min: x.min}) : (Math.random() < .6 ? LINES.stat[x.k] : pick(LINES.finish));
+  let h = `<div class="wrap reward"><h2>${esc(x.a.name)}</h2><div class="gain" id="gain">+0 <small>ink</small></div><div class="tiny">${esc(x.parts.join(' · '))}</div><p class="say">${esc(say)}</p>`;
+  if (x.extras.length) h += `<div class="card event">${x.extras.map(e => `<div class="h" style="font-size:18px">${esc(e)}</div>`).join('')}</div>`;
+  if (x.lv) h += `<div class="card event"><div class="k">Fellow level ${x.lv}</div><div class="h">${esc(titleFor(x.lv))}</div></div>`;
+  if (x.statUp) h += `<div class="card event"><div class="k">${esc(STATS[x.k].n)} rises</div><div class="h">Level ${x.statUp}</div></div>`;
+  if (x.g && !x.g.dupe) h += `<div class="card event"><div class="k">Found</div><div class="h"><span class="gem ${x.g.r}"></span>${esc(x.g.n)}</div><div class="tiny">${esc(RAR[x.g.r])} · ${esc(SLOTS[x.g.slot])} · ${Object.entries(x.g.b).map(([s, v]) => `+${v} ${STATS[s].n}`).join(', ')}. Equip it on the Fellow page.</div></div>`;
+  if (x.g && x.g.dupe) h += `<div class="card"><div class="tiny">You found something you already own and sold it for ${x.g.ink} ink.</div></div>`;
+  if (x.clean) h += `<div class="card event"><div class="k">A clean day</div><div class="h">Every loose end tied</div></div>`;
+  if (S.tree.t2 && !x.tie) h += `<div class="card" id="loose-q"><div>Anything left hanging from this?</div><div class="row" style="margin-top:8px"><button class="btn" data-act="no-loose">No, all done</button><button class="btn" data-act="add-loose" data-id="${esc(x.a.id)}">Leave a loose end</button></div></div>`;
+  if (x.k === 'hearth' && S.tree.h2) h += `<div class="card" id="keep-q"><div class="field"><label>A line to remember it by (optional)</label><input id="keep-text" maxlength="120"></div><button class="btn" data-act="keep-save" data-name="${esc(x.a.name)}">Keep it in the Chronicle</button></div>`;
+  h += `<div class="row" style="width:100%;margin-top:6px"><button class="btn" data-act="reward-close">Back</button><button class="btn primary" data-act="again">Again: ${esc(x.a.name)}</button></div></div>`;
+  const el = $('#reward'); el.innerHTML = h; el.classList.remove('hidden'); el.scrollTop = 0;
+  let shown = 0; const inc = x.gain / 24; const iv = setInterval(() => { shown += inc; if (shown >= x.gain) { shown = x.gain; clearInterval(iv); } const g = $('#gain'); if (g) g.innerHTML = `+${Math.round(shown)} <small>ink</small>`; }, 28);
+  renderAll();
+}
 function faceSVG(frac) {
   const f = S.settings.face, A = 'var(--accent)', L = 'var(--line)', A2 = 'var(--accent2)';
   if (f === 'candle') { const top = 70 + (1 - frac) * 150; return `<svg viewBox="0 0 280 280"><ellipse cx="140" cy="252" rx="70" ry="10" fill="${L}"/><rect x="92" y="236" width="96" height="12" rx="4" fill="${A2}"/><rect x="112" y="${top}" width="56" height="${Math.max(6, 236 - top)}" rx="5" fill="#e9dcc0" opacity=".92"/><line x1="140" y1="${top}" x2="140" y2="${top - 10}" stroke="#333" stroke-width="2"/><g class="fl"><ellipse cx="140" cy="${top - 24}" rx="9" ry="18" fill="${A}"/><ellipse cx="140" cy="${top - 19}" rx="4" ry="9" fill="#fff6d8"/></g></svg>`; }
   if (f === 'orrery') { const an = frac * Math.PI * 2 - Math.PI / 2, px = 140 + 104 * Math.cos(an), py = 140 + 104 * Math.sin(an), m = frac * Math.PI * 24; return `<svg viewBox="0 0 280 280"><circle cx="140" cy="140" r="104" fill="none" stroke="${L}" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="140" cy="140" r="20" fill="${A}"/><line x1="140" y1="140" x2="${px}" y2="${py}" stroke="${A2}" stroke-width="1.2"/><circle cx="${px}" cy="${py}" r="10" fill="${A2}" stroke="${A}" stroke-width="1.5"/><circle cx="${px + 18 * Math.cos(m)}" cy="${py + 18 * Math.sin(m)}" r="3.5" fill="${A}"/></svg>`; }
   const C = 2 * Math.PI * 118; let tk = ''; for (let i = 0; i < 60; i++) { const an = i / 60 * Math.PI * 2, r1 = i % 5 ? 128 : 123; tk += `<line x1="${140 + r1 * Math.sin(an)}" y1="${140 - r1 * Math.cos(an)}" x2="${140 + 133 * Math.sin(an)}" y2="${140 - 133 * Math.cos(an)}" stroke="${L}" stroke-width="${i % 5 ? 1 : 2}"/>`; }
   return `<svg viewBox="0 0 280 280">${tk}<circle cx="140" cy="140" r="118" fill="none" stroke="${L}" stroke-width="6"/><circle cx="140" cy="140" r="118" fill="none" stroke="${A}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - frac)}" transform="rotate(-90 140 140)"/></svg>`;
-}
-function tick() {
-  const A = S.active; if (!A) { hideRun(); return; } const w = $('#run-wrap'); if (!w) return;
-  const el = elapsed(A); w.classList.toggle('paused', !!A.pauseAt); $('#pause-btn').textContent = A.pauseAt ? 'Resume' : 'Pause';
-  if (A.planned) { const tot = A.planned * 60000, rem = tot - el; if (rem <= 0 && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(rem); $('#tsub').textContent = A.pauseAt ? 'Paused' : `of ${A.planned} minutes`; $('#face').innerHTML = faceSVG(Math.max(0, rem / tot)); }
-  else { const cap = (S.tree.d5 ? 240 : 180) * 60000; if (el >= cap && !A.pauseAt) { complete('done'); return; } $('#time').textContent = fmtClock(el); $('#tsub').textContent = A.pauseAt ? 'Paused' : 'open session'; $('#face').innerHTML = faceSVG(1 - (el % 3600000) / 3600000); }
-}
-function complete(kind) {
-  const A = S.active; if (!A) return; const el = elapsed(A);
-  let min = Math.floor(el / 60000); min = A.planned ? Math.min(min, A.planned) : Math.min(min, S.tree.d5 ? 240 : 180);
-  if (kind === 'done' && A.planned && el >= A.planned * 60000 - 1000) min = A.planned;
-  S.active = null; try { wake && wake.release(); } catch (e) { /* none */ } wake = null; hideRun();
-  if (min < 2) { save(); renderAll(); toast('Under two minutes. The ledger did not notice.'); return; }
-  const a = actById(A.act) || {id: A.act, name: 'Focus', stat: 'order', wing: ''}, k = a.stat;
-  const parts = [`${min} min`]; let mult = inkMult(k);
-  if (k === 'hearth' && S.tree.h1) { mult *= 1.25; parts.push('Fireside'); }
-  if (k === 'scholarship' && S.tree.s1) { mult *= 1.25; parts.push('Marginalia'); }
-  const now = new Date(), outside = isWeekend(now) || now.getHours() < 9 || now.getHours() >= 17;
-  if (k === 'scholarship' && S.tree.s2 && outside) { mult *= 1.25; parts.push('Side project'); }
-  if (isHearthWeekend(k)) { mult *= 2; parts.push('Weekend rites'); }
-  if (A.mom > 1) { mult *= A.mom; parts.push(`momentum +${Math.round((A.mom - 1) * 100)}%`); }
-  if (cardBonus(k) > 1) parts.push(cardOfDay().name);
-  if (S.tree.d2 && min >= 45) { mult *= 1.15; parts.push('Deep work'); }
-  if (S.tree.d5 && min >= 90) { mult *= 1.25; parts.push('The long hour'); }
-  if (kind === 'done' && A.planned && min >= A.planned) { mult *= 1.1; parts.push('kept to time'); }
-  let gain = Math.round(min * mult) + (A.tie ? 10 : 0);
-  const statBefore = statLevel(k);
-  touchStat(k, min); noteEvent(k, 'focus'); if (A.early) S.c.early++; S.c.maxMom = Math.max(S.c.maxMom || 1, A.mom || 1); const lv = earn(gain, k);
-  S.actMin[a.id] = (S.actMin[a.id] || 0) + min; S.actCount[a.id] = (S.actCount[a.id] || 0) + 1;
-  S.c.sessions++; S.c.focusMin += min; S.c.longest = Math.max(S.c.longest, min); S.c.focusByStat[k] = (S.c.focusByStat[k] || 0) + min; addDay('focus', min);
-  S.momentum = A.mom || 1; S.lastEnd = Date.now();
-  const g = min >= 20 ? dropGear(.06 + min / 600) : null;
-  let clean = false;
-  if (A.tie && S.loose[a.id]) { S.loose[a.id]--; const t = ymd(); S.ties[t] = (S.ties[t] || 0) + 1; clean = checkClean(); }
-  pushRecent({t: Date.now(), type: 'focus', name: a.name, ink: gain, stat: k, min, note: A.note});
-  save(logRow('focus', a.name, min, gain, k, [A.note, kind === 'stop' ? 'stopped' : ''].filter(Boolean).join('; ')));
-  const achs = checkAch();
-  if (kind === 'done' && A.planned) chime();
-  showReward({a, k, min, gain, parts, lv, statUp: statLevel(k) > statBefore ? statLevel(k) : 0, g, clean, kind, tie: A.tie, achs});
-}
-function looseTotal() { return Object.values(S.loose).reduce((x, y) => x + (y || 0), 0); }
-function checkClean() { const t = ymd(); if (looseTotal() === 0 && (S.ties[t] || 0) > 0 && !S.cleanDays.includes(t)) { S.cleanDays.push(t); S.c.cleanDays++; S.ink += 40; S.xp += 40; return true; } return false; }
-function showReward(x) {
-  const say = x.kind === 'stop' ? fill(pick(LINES.stop), {min: x.min}) : (Math.random() < .6 ? LINES.stat[x.k] : pick(LINES.finish));
-  let h = `<div class="wrap reward"><h2>${esc(x.a.name)}</h2><div class="gain" id="gain">+0 <small>ink</small></div><div class="tiny">${esc(x.parts.join(' · '))}</div><p class="say">${esc(say)}</p>`;
-  if (x.lv) h += `<div class="card event"><div class="k">Fellow level ${x.lv}</div><div class="h">${esc(titleFor(x.lv))}</div></div>`;
-  if (x.statUp) h += `<div class="card event"><div class="k">${esc(STATS[x.k].n)} rises</div><div class="h">Level ${x.statUp}</div></div>`;
-  if (x.g && !x.g.dupe) h += `<div class="card event"><div class="k">Found</div><div class="h"><span class="gem ${x.g.r}"></span>${esc(x.g.n)}</div><div class="tiny">${esc(RAR[x.g.r])} · ${esc(SLOTS[x.g.slot])} · ${Object.entries(x.g.b).map(([s, v]) => `+${v} ${STATS[s].n}`).join(', ')}. Equip it on the Fellow page.</div></div>`;
-  if (x.g && x.g.dupe) h += `<div class="card"><div class="tiny">You found something you already own and sold it for ${x.g.ink} ink.</div></div>`;
-  if (x.clean) h += `<div class="card event"><div class="k">A clean day</div><div class="h">Every loose end tied. +40</div></div>`;
-  if (S.tree.d3 && !x.tie) h += `<div class="card" id="loose-q"><div>Anything left hanging from this?</div><div class="row" style="margin-top:8px"><button class="btn" data-act="no-loose">No, all done</button><button class="btn" data-act="add-loose" data-id="${esc(x.a.id)}">Leave a loose end</button></div></div>`;
-  h += `<div class="row" style="width:100%;margin-top:6px"><button class="btn" data-act="reward-close">Back</button><button class="btn primary" data-act="again">Again: ${esc(x.a.name)}</button></div></div>`;
-  const el = $('#reward'); el.innerHTML = h; el.classList.remove('hidden'); el.scrollTop = 0;
-  let shown = 0; const inc = x.gain / 24; const iv = setInterval(() => { shown += inc; if (shown >= x.gain) { shown = x.gain; clearInterval(iv); } const g = $('#gain'); if (g) g.innerHTML = `+${Math.round(shown)} <small>ink</small>`; }, 28);
-  renderAll();
 }
 
 /* ============ portrait ============ */
@@ -724,6 +842,9 @@ function portrait(opts = {}) {
   if (eq.head === 'brim') s += `<ellipse cx="100" cy="86" rx="52" ry="9" fill="#1c1a18"/><path d="M76 86 Q78 56 100 56 Q122 56 124 86Z" fill="#1c1a18"/><rect x="76" y="78" width="48" height="5" fill="#6e2320"/>`;
   if (eq.head === 'hood') s += `<path d="M62 150 Q56 64 100 58 Q144 64 138 150 L128 150 Q132 82 100 78 Q68 82 72 150Z" fill="#2f3a2a"/>`;
   if (eq.familiar === 'raven') s += `<g transform="translate(${100 + sw - 22} 160)"><path d="M0 14 q8 -16 22 -12 l8 -4 l-6 6 q4 10 -4 16 z" fill="#0d0d10"/><circle cx="20" cy="4" r="1.4" fill="#ccc"/></g>`;
+  if (eq.familiar === 'fox') s += `<g transform="translate(140 176)"><path d="M6 64 Q2 40 14 30 L10 14 L20 24 Q26 22 32 24 L42 14 L38 30 Q50 40 46 64 Z" fill="#8d8a86"/><path d="M14 40 Q26 50 38 40 Q34 54 26 56 Q18 54 14 40Z" fill="#e8e2d8"/><circle cx="20" cy="36" r="1.8" fill="#1a1410"/><circle cx="32" cy="36" r="1.8" fill="#1a1410"/><circle cx="26" cy="44" r="2" fill="#1a1410"/></g>`;
+  if (eq.familiar && S.tree.o2 && familiarStage() >= 2) s += `<g opacity="${familiarStage() >= 3 ? 1 : .7}"><circle cx="${eq.familiar === 'cat' || eq.familiar === 'fox' ? 166 : 100 + sw - 10}" cy="${eq.familiar === 'cat' || eq.familiar === 'fox' ? 212 : 166}" r="${familiarStage() >= 3 ? 22 : 16}" fill="none" stroke="var(--accent)" stroke-width=".8" stroke-dasharray="2 3"/></g>`;
+  if (eq.familiar && S.tree.o2 && familiarStage() >= 3) s += `<text x="${eq.familiar === 'cat' || eq.familiar === 'fox' ? 166 : 100 + sw - 10}" y="${eq.familiar === 'cat' || eq.familiar === 'fox' ? 184 : 142}" text-anchor="middle" font-size="10" fill="var(--accent)">✦</text>`;
   if (eq.familiar === 'owl') s += `<g transform="translate(${100 + sw - 26} 152)"><ellipse cx="12" cy="14" rx="11" ry="14" fill="#d8c3a0"/><path d="M1 6 q11 -8 22 0 q-11 4 -22 0z" fill="#b89a6e"/><circle cx="8" cy="10" r="2.5" fill="#1a1410"/><circle cx="16" cy="10" r="2.5" fill="#1a1410"/></g>`;
   const hand = eq.hand && GEAR_BY[eq.hand];
   if (hand) s += `<g transform="translate(14 196)"><circle cx="16" cy="16" r="16" fill="#0008" stroke="var(--accent2)"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="var(--accent)" font-family="serif">${{pen: '✒', trowel: '⚘', bow: '➶', dumbbell: '◍', mirror: '◐'}[hand.id] || '✦'}</text></g>`;
@@ -767,13 +888,15 @@ function noteEvent(k, kind) {
 }
 const activeDays = s => Object.values(s.days).filter(v => (v.ink || 0) > 0).length;
 function runOfDays(list) { const u = [...new Set(list)].sort(); let best = 0, run = 0, prev = null; for (const d of u) { run = prev && daysBetween(prev, d) === 1 ? run + 1 : 1; best = Math.max(best, run); prev = d; } return best; }
-const pursuitLevel = g => Math.floor(Math.sqrt(goalPoints(g) / 40));
+function maxInWindow(dates, span) { const u = [...new Set(dates)].sort(); let best = 0, i = 0; for (let j = 0; j < u.length; j++) { while (daysBetween(u[i], u[j]) >= span) i++; best = Math.max(best, j - i + 1); } return best; }
+const trainingDays = s => [...(s.rit['r:training'] || []), ...(s.actDays['a:training'] || [])];
+function wingDays(s, wing, within) { const set = new Set(); CFG.activities.filter(a => a.wing === wing).forEach(a => (s.actDays[a.id] || []).forEach(d => { if (daysBetween(d, ymd()) <= within) set.add(d); })); return set.size; }
 ACH.push(...[
   {id: 'early', n: 'Matins', d: 'Start a focus session before 8am', test: s => s.c.early >= 1, reward: 75},
-  {id: 'early20', n: 'The early office', d: '20 sessions started before 8am', test: s => s.c.early >= 20, reward: 600},
-  {id: 'lamp', n: 'Lamplighter', d: 'Finish a session after 9pm', test: s => s.c.late >= 1, reward: 75},
+  {id: 'sparks20', n: 'Twenty first sparks', d: 'Focus on 20 different days', test: s => Object.values(s.days).filter(v => (v.focus || 0) > 0).length >= 20, reward: 600},
+  {id: 'bell5', n: 'The closing bell', d: 'Finish five sessions within 15 minutes of your evening bell', test: s => s.c.bell >= 5, reward: 200},
   {id: 'long2', n: 'The long count', d: 'A single session of two hours', test: s => s.c.longest >= 120, reward: 400},
-  {id: 'ten', n: 'Ten rites', d: 'Tick ten rituals in one day', test: s => Object.values(s.days).some(v => (v.rituals || 0) >= 10), reward: 200},
+  {id: 'steady7', n: 'A steady week', d: 'Tick at least one ritual on seven days running', test: s => runOfDays(Object.keys(s.days).filter(k => (s.days[k].rituals || 0) > 0)) >= 7, reward: 200},
   {id: 'week7', n: 'Seven full sets', d: 'Every ritual due, seven days running', test: s => runOfDays(s.fullDays) >= 7, reward: 1200},
   {id: 'st365', n: 'A year and a day', d: 'Any ritual streak of 365', test: s => s.c.bestStreak >= 365, reward: 20000},
   {id: 'act30', n: 'A regular', d: 'Active on 30 different days', test: s => activeDays(s) >= 30, reward: 500},
@@ -789,7 +912,7 @@ ACH.push(...[
   {id: 'equil', n: 'Equilibrium', d: 'Every stat in full condition at once', test: s => SK.every(k => s.stat[k].last && cond(k) >= 1), reward: 250},
   {id: 'deeds50', n: 'Deeds, not words, fifty times', d: 'Log 50 deeds', test: s => s.c.deeds >= 50, reward: 500},
   {id: 'clean10', n: 'Nothing left over', d: 'Ten clean days', test: s => s.c.cleanDays >= 10, reward: 1000},
-  {id: 'mom', n: 'Perpetual motion', d: 'Reach the highest momentum you can', test: s => !!s.tree.d1 && s.c.maxMom >= (s.tree.d4 ? 1.6 : 1.3), reward: 400},
+  {id: 'mom', n: 'Perpetual motion', d: 'Build momentum to its peak', test: s => !!s.tree.d1 && s.c.maxMom >= 1.2, reward: 400},
   {id: 'cards', n: 'Heeding the cards', d: 'Log 25 times in the stat the card favours', test: s => s.c.favoured >= 25, reward: 400},
   {id: 'cards100', n: 'Reader of omens', d: 'Log 100 times in the favoured stat', test: s => s.c.favoured >= 100, reward: 1500},
   {id: 'hw4', n: 'Weekends at the hearth', d: 'Hearth logged on four different weekends', test: s => s.marks.hw.length >= 4, reward: 500},
@@ -798,13 +921,26 @@ ACH.push(...[
   {id: 'allgear', n: 'The complete cabinet', d: 'Own every piece of gear', test: s => GEAR.every(g => s.gear.owned[g.id]), reward: 10000},
   {id: 'endow5', n: 'Benefactor', d: 'Reach Endowment V', test: s => (s.tree.e || 0) >= 5, reward: 2000},
   {id: 'endow10', n: 'Patron of the Institute', d: 'Reach Endowment X', test: s => (s.tree.e || 0) >= 10, reward: 10000},
-  {id: 'purs3', n: 'Dedication', d: 'Any pursuit reaches Capable', test: () => CFG.goals.some(g => pursuitLevel(g) >= 3), reward: 500},
-  {id: 'pursall', n: 'Irons in the fire', d: 'Every pursuit past Begun', test: () => CFG.goals.length > 0 && CFG.goals.every(g => pursuitLevel(g) >= 1), reward: 600},
+  {id: 'ink1', n: 'Ink made real', d: 'Reach your first pursuit milestone', test: s => s.c.milestones >= 1, reward: 300},
+  {id: 'dedication', n: 'Dedication', d: 'Reach five pursuit milestones', test: s => s.c.milestones >= 5, reward: 500},
+  {id: 'irons', n: 'Irons in the fire', d: 'Three pursuits with two milestones each', test: () => CFG.goals.filter(g => msCount(g) >= 2).length >= 3, reward: 600},
+  {id: 'opus', n: 'Opus', d: 'Complete every milestone of a pursuit', test: s => s.c.pursuitsDone >= 1, reward: 1000},
+  {id: 'maker', n: 'The maker', d: 'Reach a milestone in a pursuit linked to the Workshop', test: s => s.c.workshopMs >= 1, reward: 250},
+  {id: 'spark', n: 'The first spark', d: 'Complete a focus session of 10 to 20 minutes', test: s => s.c.short >= 1, reward: 75},
+  {id: 'back5', n: 'Back to the page', d: 'Come back after five interruptions', test: s => s.c.returns >= 5, reward: 150},
+  {id: 'thread', n: 'The thread recovered', d: 'Tie off a loose end with a timed session', test: s => s.c.threads >= 1, reward: 150},
+  {id: 'comeback10', n: 'Second winds', d: 'Pick ten rituals back up after missing them', test: s => s.c.comebacks >= 10, reward: 300},
+  {id: 'note1', n: 'The first note', d: 'Your first session playing or composing music', test: s => ['a:playing-music', 'a:composing-music'].some(id => (s.actDays[id] || []).length), reward: 100},
+  {id: 'observatory', n: 'The Observatory', d: 'Your first astronomy session', test: s => Object.keys(s.actDays).some(id => id.includes('astro') && s.actDays[id].length), reward: 150},
+  {id: 'living', n: 'A living collection', d: 'Garden activities on five different days', test: s => wingDays(s, 'Garden', 9999) >= 5, reward: 200},
+  {id: 'outside', n: 'A life outside the office', d: 'Four different activities outside Work and Scholarship within 30 days', test: s => CFG.activities.filter(a => a.wing !== 'Work' && a.wing !== 'Scholarship' && (s.actDays[a.id] || []).some(d => daysBetween(d, ymd()) <= 30)).length >= 4, reward: 300},
+  {id: 'wings', n: 'Every wing', d: 'Something logged in every wing within 30 days', test: s => { const w = [...new Set(CFG.activities.map(a => a.wing))]; return w.length > 0 && w.every(x => wingDays(s, x, 30) >= 1); }, reward: 400, theme: 'moss'},
+  {id: 'rekindled', n: 'Rekindled', d: 'Take up an interest you had lost touch with', test: s => s.c.rekindled >= 1, reward: 200},
+  {id: 'explorer', n: 'Many doors', d: 'Try 15 different activities', test: s => Object.values(s.actDays).filter(v => v.length).length >= 15, reward: 400},
   {id: 'moon', n: 'By the light of the moon', d: 'Focus during a full moon', test: s => s.c.fullMoon >= 1, reward: 200, h: 1},
   {id: 'samhain', n: 'Samhain', d: 'Log anything on 31 October', test: s => !!s.marks.seasons.samhain, reward: 500, h: 1},
   {id: 'solstice', n: 'The longest night', d: 'Log anything on 21 December', test: s => !!s.marks.seasons.solstice, reward: 500, h: 1},
   {id: 'midsummer', n: 'Midsummer', d: 'Log anything on 21 June', test: s => !!s.marks.seasons.midsummer, reward: 500, h: 1},
-  {id: 'prodigal', n: 'The prodigal Fellow', d: 'Come back after a week away', test: s => s.c.prodigal >= 1, reward: 150, h: 1},
   {id: 'f13', n: 'Unlucky for some', d: 'Finish a session on Friday the 13th', test: s => !!s.marks.seasons.f13, reward: 313, h: 1},
   {id: 'world', n: 'The World', d: 'Log something on a day The World is drawn', test: s => !!s.marks.seasons.world, reward: 221, h: 1}
 ]);
@@ -829,67 +965,88 @@ function ritRow(r, done) {
   let sub = SCHED[r.sched]; if (r.sched === 'perweek') sub = `${countInPeriod(r, new Date())} of ${r.n} this week`; if (r.sched === 'everyn') sub = `every ${r.n} days`;
   return `<div class="rit${done ? ' done' : ''}"><button class="tick" data-tick="${esc(r.id)}" aria-label="Tick">${done ? '✓' : ''}</button><div class="nm"><span class="statdot" style="background:${STATS[r.stat].c}"></span>${esc(r.name)}<small>${esc(sub)}</small></div>${st > 1 ? `<span class="flame">${st} in a row</span>` : ''}</div>`;
 }
+function rekindleToday() {
+  const t = ymd(), list = CFG.activities.filter(a => a.rekindle && (!(S.actDays[a.id] || []).length || daysBetween((S.actDays[a.id] || []).slice(-1)[0], t) >= 30));
+  if (!list.length) return null;
+  return list[hashStr('rekindle:' + t) % list.length];
+}
 function renderToday() {
   if (!line) line = greet();
-  const due = dueToday(), done = doneToday(), any = CFG.rituals.filter(r => r.sched === 'anytime' && !doneOn(r.id, ymd())), later = CFG.rituals.filter(r => r.sched !== 'anytime' && !isDue(r) && !doneOn(r.id, ymd()));
+  const t = ymd(), rit = CFG.rituals.filter(r => r.sched !== 'anytime'), moments = CFG.rituals.filter(r => r.sched === 'anytime');
+  const due = rit.filter(r => isDue(r)), done = rit.filter(r => doneOn(r.id, t)), later = rit.filter(r => !isDue(r) && !doneOn(r.id, t));
   let h = '';
-  if (!S.seenIntro) h += `<div class="card event" style="margin-top:12px"><div class="h">Welcome to the Institute, Fellow.</div><p class="muted">Tick rituals as you do them. Use Focus for timed work, or log a deed afterwards. Everything earns ink and experience, raises your stats and occasionally turns up gear. Spend ink on the Tree. Edit your rituals, activities and pursuits in the Google Sheet.</p><button class="btn" data-act="intro">Understood</button></div>`;
+  if (!S.seenIntro) h += `<div class="card event" style="margin-top:12px"><div class="h">Welcome to the Institute, Fellow.</div><p class="muted">Start an activity on Focus, tick rituals as you go, and mark pursuit milestones when something real happens. Everything else, rewards, rituals done by activities, the Chronicle, happens by itself.</p><button class="btn" data-act="intro">Understood</button></div>`;
   if (!connected()) h += `<div class="card event" style="margin-top:12px"><div class="k">Not connected</div><div class="h">Connect your Google Sheet</div><p class="muted">Until then, progress saves on this device only and your own rituals will not appear.</p><button class="btn primary" data-act="settings">Connect</button></div>`;
   h += `<p class="archivist">${esc(line)}</p>`;
   const card = cardOfDay(), moon = moonPhase();
   h += `<div class="card omen"><div class="tarot"><span class="n">${card.num}</span><span class="g glyph" style="margin:0">${STAT_GLYPH[card.stat]}</span><span class="s">${card.stat === 'all' ? 'All' : STATS[card.stat].n}</span></div><div style="flex:1"><div class="tiny" style="font-variant:small-caps;letter-spacing:.06em">The card of the day</div><div class="serif" style="font-size:21px;line-height:1.1">${esc(card.name)}</div><div class="muted">${esc(card.text)} ${card.stat === 'all' ? 'Everything earns +10%' : `${STATS[card.stat].n} earns +20%`} today.</div><div class="tiny" style="margin-top:5px;display:flex;align-items:center;gap:6px">${moonSVG(moon.p, 16)}${esc(moon.name)}${moon.full ? ': focus tonight for something hidden' : ''}</div></div></div>`;
+  const rk = rekindleToday();
+  if (rk) { const ds = S.actDays[rk.id] || []; h += `<div class="card rekindle"><div class="tiny" style="font-variant:small-caps;letter-spacing:.06em">Lost touch</div><div class="row" style="align-items:center"><div style="flex:1"><div class="serif" style="font-size:19px">${esc(rk.name)}</div><div class="tiny">${ds.length ? `Last touched ${daysBetween(ds[ds.length - 1], t)} days ago.` : 'Not yet in the Institute.'} No obligation. Picking it up earns +75.</div></div><button class="btn small" data-act="rekindle" data-id="${esc(rk.id)}" style="flex:none">Begin</button></div></div>`; }
   h += `<div class="label">Due today <small>${done.length} done</small></div><div class="card">`;
   h += due.length ? due.map(r => ritRow(r, false)).join('') : `<div class="muted">Nothing left due today. ${done.length ? 'Very good.' : ''}</div>`;
   h += `</div>`;
+  if (moments.length) h += `<div class="label">Moments <small>no targets, just recognition</small></div><div class="acts">${moments.map(r => `<button class="act${doneOn(r.id, t) ? ' sel' : ''}" data-tick="${esc(r.id)}">${doneOn(r.id, t) ? '✓ ' : ''}${esc(r.name)}</button>`).join('')}</div>`;
   if (done.length) h += `<details><summary>Done today (${done.length}), tap to undo</summary><div class="card">${done.map(r => ritRow(r, true)).join('')}</div></details>`;
-  if (any.length) h += `<details><summary>Anytime (${any.length})</summary><div class="card">${any.map(r => ritRow(r, false)).join('')}</div></details>`;
   if (later.length) h += `<details><summary>Not due today (${later.length})</summary><div class="card">${later.map(r => ritRow(r, false)).join('')}</div></details>`;
   h += `<div class="row" style="margin-top:12px"><button class="btn" data-act="deed">Log a deed</button><button class="btn primary" data-tab="focus">Start focus</button></div>`;
-  const td = S.days[ymd()] || {};
+  const td = S.days[t] || {};
   h += `<div class="chips"><span class="chip">Focus <b>${fmtMin(td.focus || 0)}</b></span><span class="chip">Rituals <b>${td.rituals || 0}</b></span><span class="chip">Ink today <b>${num(td.ink || 0)}</b></span>${looseTotal() ? `<span class="chip hot">Loose ends ${looseTotal()}</span>` : ''}</div>`;
   const low = SK.filter(k => cond(k) < .9);
   if (low.length) h += `<p class="tiny" style="margin-top:12px">Gathering dust: ${low.map(k => `${STATS[k].n} (${Math.round(cond(k) * 100)}%)`).join(', ')}. One log in each restores it.</p>`;
   $('#view-today').innerHTML = h;
 }
-function wingsHTML(attr, selected, showLoose) {
-  const wings = [...new Set(CFG.activities.map(a => a.wing))];
-  const top = Object.entries(S.actCount).sort((a, b) => b[1] - a[1]).map(x => x[0]).filter(id => actById(id)).slice(0, 6);
-  let h = '';
-  const btn = a => `<button class="act${a.id === selected ? ' sel' : ''}" data-${attr}="${esc(a.id)}">${esc(a.name)}${showLoose && S.loose[a.id] ? `<span class="lo">${S.loose[a.id]}</span>` : ''}</button>`;
-  if (top.length) h += `<div class="wing">Most used</div><div class="acts">${top.map(id => btn(actById(id))).join('')}</div>`;
-  for (const w of wings) h += `<div class="wing">${esc(w)}</div><div class="acts">${CFG.activities.filter(a => a.wing === w).map(btn).join('')}</div>`;
-  return h;
+function recentActs(n) {
+  const ids = [];
+  for (const e of S.recent) { if (e.type !== 'focus' && e.type !== 'deed') continue; const a = CFG.activities.find(x => x.name === e.name); if (a && !ids.includes(a.id)) ids.push(a.id); if (ids.length >= n) break; }
+  if (ids.length < n) Object.entries(S.actCount).sort((a, b) => b[1] - a[1]).forEach(([id]) => { if (ids.length < n && actById(id) && !ids.includes(id)) ids.push(id); });
+  if (ids.length < n) CFG.activities.forEach(a => { if (ids.length < n && !ids.includes(a.id)) ids.push(a.id); });
+  return ids.map(actById).filter(Boolean);
+}
+let pickerOpen = {};
+function pickerHTML(attr, selected) {
+  const btn = a => `<button class="act${a.id === selected ? ' sel' : ''}" data-${attr}="${esc(a.id)}">${esc(a.name)}${S.loose[a.id] ? `<span class="lo">${S.loose[a.id]}</span>` : ''}</button>`;
+  const recent = recentActs(6), wings = [...new Set(CFG.activities.map(a => a.wing))];
+  let h = `<div class="acts">${recent.map(btn).join('')}</div>`;
+  h += `<details class="more" data-pk="${attr}"${pickerOpen[attr] ? ' open' : ''}><summary>All activities (${CFG.activities.length})</summary>`;
+  for (const w of wings) { const list = CFG.activities.filter(a => a.wing === w); h += `<details class="wingd"><summary>${esc(w)} <small>${list.length}</small></summary><div class="acts">${list.map(btn).join('')}</div></details>`; }
+  return h + `</details>`;
 }
 function renderFocus() {
   if (!selAct || !actById(selAct)) selAct = actById(S.settings.act) ? S.settings.act : (CFG.activities[0] && CFG.activities[0].id);
   const a = actById(selAct), mom = momentumNow();
-  let h = `<div class="label">What are you doing?</div>${wingsHTML('pick', selAct, true)}`;
+  let h = `<div class="label">What are you doing?</div>`;
+  h += a ? `<div class="chosen"><span class="glyph" style="font-size:26px">${STAT_GLYPH[a.stat]}</span><div style="flex:1"><div class="serif" style="font-size:23px;line-height:1.1">${esc(a.name)}</div><div class="tiny">${esc(a.wing)} · ${esc(STATS[a.stat].n)} · +${Math.round((basePct(a.stat)) * 100)}% today</div></div></div>` : '';
+  h += pickerHTML('pick', selAct);
   h += `<div class="label">How long?</div><div class="durs">${[10, 15, 25, 45, 60, 0].map(d => `<button class="dur${S.settings.dur === d ? ' sel' : ''}" data-dur="${d}">${d || 'Open'}</button>`).join('')}</div>`;
   h += `<input id="f-note" maxlength="60" placeholder="Note, optional. Initials only, never names." style="margin-top:10px">`;
   h += `<button class="begin" data-act="begin">Begin${a ? ': ' + esc(a.name) : ''}</button>`;
-  h += `<div class="chips">${mom > 1 ? `<span class="chip hot">Momentum +${Math.round((mom - 1) * 100)}%</span>` : ''}${a ? `<span class="chip">${esc(STATS[a.stat].n)} <b>+${Math.round((inkMult(a.stat) - 1) * 100)}%</b></span>` : ''}${a && S.loose[a.id] ? `<button class="chip hot" data-act="loose" data-id="${esc(a.id)}">${S.loose[a.id]} loose end${S.loose[a.id] > 1 ? 's' : ''}: tie off</button>` : ''}</div>`;
+  h += `<div class="chips">${mom > 1 ? `<span class="chip hot">Momentum +${Math.round((mom - 1) * 100)}%</span>` : ''}${S.tree.d0 && S.once.d0 !== ymd() ? '<span class="chip hot">First spark waiting: +20</span>' : ''}${a && S.loose[a.id] ? `<button class="chip hot" data-act="loose" data-id="${esc(a.id)}">${S.loose[a.id]} loose end${S.loose[a.id] > 1 ? 's' : ''}: tie off</button>` : ''}</div>`;
   $('#view-focus').innerHTML = h;
 }
-function goalPoints(g) {
-  let p = 0;
-  for (const a of CFG.activities) if (g.links.includes(slug(a.name))) p += (S.actMin[a.id] || 0) + 15 * (S.actDeed[a.id] || 0);
-  for (const r of CFG.rituals) if (g.links.includes(slug(r.name))) p += 15 * (S.ritCount[r.id] || 0);
-  return p * (S.tree.s3 ? 1.25 : 1);
+function pursuitCard(g) {
+  const n = msCount(g), tot = g.ms.length, mins = goalMinutes(g);
+  if (!tot) return `<div class="goal"><div class="h"><span>${esc(g.name)}</span><span class="t">an intention</span></div><div class="tiny">Kept close, not measured.${mins ? ` ${fmtMin(mins)} spent on it so far.` : ''}</div></div>`;
+  const next = g.ms.findIndex((m, i) => !msDone(g, i));
+  return `<button class="goal goalbtn" data-goal="${esc(g.id)}"><div class="h"><span>${esc(g.name)}</span><span class="t">${n === tot ? 'complete' : `${n} of ${tot}`}</span></div><div class="bar"><i style="width:${n / tot * 100}%"></i></div><div class="tiny" style="margin-top:3px">${next >= 0 ? `Next: ${esc(g.ms[next])} · +${num(msInk(g, next))}` : 'Every milestone reached.'}${mins ? ` · ${fmtMin(mins)} spent` : ''}</div></button>`;
 }
 function renderFellow() {
   let h = `<div class="label">${esc(S.settings.name)}</div><div class="fellow"><div class="portrait">${portrait()}</div><div style="flex:1">`;
   for (const k of SK) { const L = statLevel(k), c = cond(k), gb = gearBonus(k); h += `<div class="stat"><div class="h"><span><span class="glyph">${STAT_GLYPH[k]}</span>${STATS[k].n}</span><b>${L}${gb ? ` <span class="tiny">+${Math.round(gb * 10) / 10}</span>` : ''}</b></div><div class="bar"><i style="width:${statProg(k) * 100}%"></i></div><div class="cond${c < .8 ? ' low' : ''}" title="Condition"><i style="width:${c * 100}%"></i></div></div>`; }
   h += `</div></div><p class="tiny">Thick bar: level, permanent. Thin bar: condition, which fades after three quiet days and returns with one log. Each stat makes its own activities pay more; Vigour boosts everything.</p>`;
+  const active = CFG.goals.filter(g => g.active), dormant = CFG.goals.filter(g => !g.active);
+  h += `<div class="label">Pursuits <small>tap to mark a milestone</small></div><div class="card">`;
+  h += active.length ? active.map(pursuitCard).join('') : `<div class="muted">No active pursuits. Add them on the Goals tab of your Sheet.</div>`;
+  h += `</div>`;
+  if (dormant.length) h += `<details><summary>Dormant (${dormant.length}): remembered, not owed</summary><div class="card">${dormant.map(g => `<div class="goal"><div class="h"><span>${esc(g.name)}</span><span class="t">dormant</span></div>${g.ms.length ? `<div class="tiny">${g.ms.length} milestones waiting. Tick Active in the Sheet to wake it.</div>` : ''}</div>`).join('')}</div></details>`;
   h += `<div class="label">Equipped <small>${Object.keys(S.gear.owned).length} owned</small></div><div class="slots">`;
-  for (const [slot, nm] of Object.entries(SLOTS)) { if (slot === 'familiar' && !S.tree.o2) continue; const g = GEAR_BY[S.gear.eq[slot]]; h += `<button class="slot" data-slot="${slot}"><small>${nm}</small>${g ? `<span class="gem ${g.r}"></span>${esc(g.n)}` : '<span class="tiny">Empty</span>'}</button>`; }
-  h += `</div>${S.tree.o1 ? `<button class="btn full" data-act="shop">Visit the Outfitter</button>` : `<p class="tiny">Gear turns up from focus sessions of 20 minutes or more and from weekly rituals. Unlock Tailor on the Tree to buy it.</p>`}`;
-  h += `<div class="label">Pursuits <small>edit in the Sheet</small></div><div class="card">`;
-  if (!CFG.goals.length) h += `<div class="muted">No pursuits yet. Add them on the Goals tab of your Sheet.</div>`;
-  for (const g of CFG.goals) { const p = goalPoints(g), L = Math.floor(Math.sqrt(p / 40)), lo = 40 * L * L, hi = 40 * (L + 1) * (L + 1); const t = L < PURSUIT.length ? PURSUIT[L] : `Luminary ${roman(L - PURSUIT.length + 2)}`; h += `<div class="goal"><div class="h"><span>${esc(g.name)}</span><span class="t">${esc(t)}</span></div><div class="bar"><i style="width:${(p - lo) / (hi - lo) * 100}%"></i></div></div>`; }
-  h += `</div><div class="label">Achievements <small>${Object.keys(S.ach).length} of ${ACH.length}</small></div><div class="achs">`;
+  for (const [slot, nm] of Object.entries(SLOTS)) { if (slot === 'familiar' && !S.tree.o2) continue; const g = GEAR_BY[S.gear.eq[slot]]; h += `<button class="slot" data-slot="${slot}"><small>${nm}</small>${g ? `<span class="gem ${g.r}"></span>${esc(g.n)}${slot === 'familiar' ? ` <span class="tiny">${['', 'young', 'grown', 'ancient'][familiarStage()]}</span>` : ''}` : '<span class="tiny">Empty</span>'}</button>`; }
+  h += `</div>${S.tree.o1 ? `<button class="btn full" data-act="shop">Visit the Outfitter</button>` : `<p class="tiny">Gear turns up from focus sessions of 20 minutes or more and from weekly rituals. Tailor on the Tree opens the Outfitter.</p>`}`;
+  const known = ACH.filter(a => S.ach[a.id]).length;
+  h += `<div class="label">Achievements <small>${known} of ${ACH.length}</small></div><div class="achs">`;
   ACH.forEach((a, i) => { const got = S.ach[a.id]; h += a.h && !got ? `<div class="ach sealed"><span class="num">${roman(i + 1)}</span><b>Sealed</b><span class="tiny">A hidden achievement. Keep living.</span></div>` : `<div class="ach${got ? ' got' : ''}"><span class="num">${roman(i + 1)}</span><b>${esc(a.n)}</b>${esc(a.d)}<div class="tiny">+${num(a.reward)} ink${a.theme ? ' · theme' : ''}${got ? ' · ' + esc(got) : ''}</div></div>`; });
   $('#view-fellow').innerHTML = h + `</div>`;
 }
+const familiarStage = () => S.c.milestones >= 8 ? 3 : S.c.milestones >= 3 ? 2 : 1;
 const endowCost = () => Math.round(3000 * Math.pow(1.4, S.tree.e || 0));
 function renderTree() {
   let h = `<p class="archivist">Ink spent here is gone, but what it buys stays for good. ${num(S.ink)} ink to spend.</p>`;
@@ -906,7 +1063,10 @@ function renderTree() {
   $('#view-tree').innerHTML = h;
 }
 function renderLedger() {
-  let h = `<div class="label">Last seven days</div><div class="card">`;
+  let h = `<div class="label">The Chronicle <small>notable things, written for you</small></div><div class="card chron">`;
+  if (!S.chron.length) h += `<div class="muted"><i>The first page is blank. It fills itself: pursuit milestones, interests rekindled, rare finds, every fifth level, keepsakes.</i></div>`;
+  for (const c of S.chron.slice(0, 30)) { const d = new Date(c.t); h += `<div class="centry"><div class="tiny">${d.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</div><div class="serif" style="font-size:19px">${esc(c.title)}</div>${c.text ? `<div class="muted"><i>${esc(c.text)}</i></div>` : ''}</div>`; }
+  h += `</div><div class="label">Last seven days</div><div class="card">`;
   const days = []; for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); days.push([d, S.days[ymd(d)] || {}]); }
   const mx = Math.max(1, ...days.map(([, v]) => v.ink || 0));
   h += days.map(([d, v]) => `<div class="lrow"><span>${d.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric'})}</span><div class="b" style="width:${(v.ink || 0) / mx * 100}%"></div><span class="v">${num(v.ink || 0)}</span></div>`).join('');
@@ -914,7 +1074,7 @@ function renderLedger() {
   h += `<div class="tiny" style="margin-top:6px">Focus ${fmtMin(wf)} · rituals ${wr}</div></div>`;
   const byStat = {}; for (const e of S.recent) if (Date.now() - e.t < 7 * 864e5) byStat[e.stat] = (byStat[e.stat] || 0) + e.ink;
   const smx = Math.max(1, ...Object.values(byStat));
-  h += `<div class="label">Where the week went</div><div class="card">${SK.map(k => `<div class="lrow"><span><span class="statdot" style="background:${STATS[k].c}"></span>${STATS[k].n}</span><div class="b" style="width:${(byStat[k] || 0) / smx * 100}%;background:${STATS[k].c}"></div><span class="v">${num(byStat[k] || 0)}</span></div>`).join('')}</div>`;
+  h += `<div class="label">Where the week went</div><div class="card">${SK.map(k => `<div class="lrow"><span><span class="glyph">${STAT_GLYPH[k]}</span>${STATS[k].n}</span><div class="b" style="width:${(byStat[k] || 0) / smx * 100}%;background:${STATS[k].c}"></div><span class="v">${num(byStat[k] || 0)}</span></div>`).join('')}</div>`;
   h += `<div class="label">Recent</div><div class="card">`;
   if (!S.recent.length) h += `<div class="muted">Nothing yet.</div>`;
   for (const e of S.recent.slice(0, 40)) { const d = new Date(e.t); h += `<div class="ev"><div>${esc(e.name)}${e.min ? ' · ' + fmtMin(e.min) : ''}<small>${d.toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short'})} ${z2(d.getHours())}:${z2(d.getMinutes())} · ${e.type}${e.note ? ' · ' + esc(e.note) : ''}</small></div><span class="ink">+${e.ink}</span></div>`; }
@@ -936,15 +1096,25 @@ function showTab(t) {
 function openSheet(h) { $('#sheet-body').innerHTML = h; $('#sheet').classList.remove('hidden'); }
 function closeSheet() { $('#sheet').classList.add('hidden'); }
 let toastQ = [], toastOn = false;
-function toast(t) { toastQ.push(t); if (!toastOn) nextToast(); }
-function nextToast() { const t = toastQ.shift(); if (!t) { toastOn = false; return; } toastOn = true; const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => { el.remove(); nextToast(); }, 2600); }
+function toast(t) { toastQ.push({t, at: Date.now()}); if (toastQ.length > 3) toastQ.splice(0, toastQ.length - 3); if (!toastOn) nextToast(); }
+function nextToast() { let q; do { q = toastQ.shift(); } while (q && Date.now() - q.at > 7000); if (!q) { toastOn = false; return; } const t = q.t; toastOn = true; const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => { el.remove(); nextToast(); }, 2300); }
 let deedAct = '';
 function deedSheet() {
   if (!deedAct || !actById(deedAct)) deedAct = selAct || (CFG.activities[0] && CFG.activities[0].id);
-  openSheet(`<h3>Log a deed</h3><p class="muted">Something you did without the timer: a visit, a shop, an evening with the girls.</p>${wingsHTML('deedpick', deedAct, false)}
+  openSheet(`<h3>Log a deed</h3><p class="muted">Something you did without the timer: a visit, a shop, an evening with the girls.</p>${pickerHTML('deedpick', deedAct)}
     <div class="field" style="margin-top:12px"><label>Minutes, if you know (otherwise it counts as a deed worth 15)</label><input id="d-min" type="number" inputmode="numeric" min="0" max="600" placeholder="optional"></div>
     <div class="field"><label>Note, optional</label><input id="d-note" maxlength="60" placeholder="Initials only, never names"></div>
     <div class="row"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="deed-save">Log it</button></div>`);
+}
+function keepsakeSheet(name) {
+  openSheet(`<h3>A keepsake</h3><p class="muted">${esc(name)}. One line to remember it by, if you like. It goes in the Chronicle.</p><div class="field"><input id="keep-text" maxlength="120" placeholder="optional"></div><div class="row"><button class="btn" data-act="close">Skip</button><button class="btn primary" data-act="keep-save" data-name="${esc(name)}">Keep it</button></div>`);
+}
+function goalSheet(gid) {
+  const g = CFG.goals.find(x => x.id === gid); if (!g) return;
+  openSheet(`<h3>${esc(g.name)}</h3><p class="muted">Mark a milestone when it has genuinely happened. Each one pays ink and goes in the Chronicle.</p>
+    ${g.ms.map((m, i) => `<div class="node${msDone(g, i) ? ' got' : ''}"><div class="seal">${msDone(g, i) ? '✓' : roman(i + 1)}</div><div class="nm"><b>${esc(m)}</b><small>${msDone(g, i) ? 'Reached ' + esc(S.ms[g.id][msKey(g, i)]) : '+' + num(msInk(g, i)) + ' ink' + (i === g.ms.length - 1 ? ', +300 for completing the pursuit' : '')}</small></div>${msDone(g, i) ? `<button class="btn small" data-unms="${esc(g.id)}|${i}">Undo</button>` : `<button class="btn small primary" data-ms="${esc(g.id)}|${i}">Reached</button>`}</div>`).join('')}
+    <div class="field" style="margin-top:10px"><label>A line for the Chronicle (optional, used with the next milestone you mark)</label><input id="ms-note" maxlength="120"></div>
+    <button class="btn full" data-act="close">Close</button>`);
 }
 function slotSheet(slot) {
   const owned = GEAR.filter(g => g.slot === slot && S.gear.owned[g.id]);
@@ -966,6 +1136,7 @@ function settingsSheet() {
     <h4>Look and sound</h4>
     <div class="row"><div class="field"><label>Theme</label><select id="s-theme">${opt(themes, S.settings.theme)}</select></div><div class="field"><label>Timer</label><select id="s-face">${opt(FACES, S.settings.face)}</select></div></div>
     <div class="field"><label><input type="checkbox" id="s-sound" style="width:auto"${S.settings.sound ? ' checked' : ''}> Chime when a timer ends</label></div>
+    <div class="field"><label>Evening bell (when focus should wind down; blank to switch off)</label><input id="s-bell" type="time" value="${esc(S.settings.bell || '')}"></div>
     <p class="tiny">More themes come from achievements and the Tree.</p>
     <h4>Your Sheet</h4>
     ${connected() ? `<p class="muted">Connected. Rituals, activities and pursuits come from your Sheet. Edit them there, then reload.</p><button class="btn full" data-act="reload">Reload from the Sheet</button>${sheetUrl ? `<p class="tiny"><a href="${esc(sheetUrl)}" target="_blank" rel="noopener" style="color:var(--accent)">Open the Sheet</a></p>` : ''}<button class="btn full" data-act="disconnect">Disconnect this device</button>`
@@ -982,7 +1153,10 @@ document.addEventListener('click', e => {
   const d = t.dataset;
   if (d.tab) { showTab(d.tab); return; }
   if (d.tick) { tickRitual(d.tick); return; }
-  if (d.pick) { selAct = d.pick; renderFocus(); return; }
+  if (d.pick) { selAct = d.pick; pickerOpen.pick = false; renderFocus(); return; }
+  if (d.goal) { goalSheet(d.goal); return; }
+  if (d.ms) { const [gid, i] = d.ms.split('|'); const note = ($('#ms-note') && $('#ms-note').value.trim().slice(0, 120)) || ''; reachMilestone(gid, Number(i), note); goalSheet(gid); return; }
+  if (d.unms) { if (!d.armed) { d.armed = '1'; t.textContent = 'Sure?'; return; } const [gid, i] = d.unms.split('|'); undoMilestone(gid, Number(i)); goalSheet(gid); return; }
   if (d.deedpick) { deedAct = d.deedpick; document.querySelectorAll('[data-deedpick]').forEach(b => b.classList.toggle('sel', b.dataset.deedpick === deedAct)); return; }
   if (d.dur != null && d.dur !== '') { S.settings.dur = Number(d.dur); save(); const n = $('#f-note') ? $('#f-note').value : ''; renderFocus(); $('#f-note').value = n; return; }
   if (d.slot) { slotSheet(d.slot); return; }
@@ -998,14 +1172,16 @@ document.addEventListener('click', e => {
   switch (d.act) {
     case 'intro': S.seenIntro = true; save(); renderAll(); break;
     case 'begin': begin(selAct); break;
-    case 'pause': if (a) { if (a.pauseAt) { a.pausedMs += Date.now() - a.pauseAt; a.pauseAt = null; } else a.pauseAt = Date.now(); save(); tick(); } break;
+    case 'pause': if (a) { if (a.pauseAt) { a.pausedMs += Date.now() - a.pauseAt; a.pauseAt = null; a.returns = (a.returns || 0) + 1; S.c.returns++; } else { a.pauseAt = Date.now(); S.c.interruptions++; } save(); tick(); } break;
+    case 'rekindle': selAct = d.id; showTab('focus'); break;
+    case 'keep-save': { const v = ($('#keep-text') && $('#keep-text').value.trim().slice(0, 120)) || ''; if (v) { chron(d.name, v); save(); toast('Kept in the Chronicle.'); } const q = $('#keep-q'); if (q) q.innerHTML = v ? '<i class="muted">Kept.</i>' : ''; else closeSheet(); } break;
     case 'finish': if (a) complete(a.planned && elapsed(a) < a.planned * 60000 - 1000 ? 'early' : 'done'); break;
     case 'stop': if (!a) break; if (d.armed) complete('stop'); else { d.armed = '1'; t.textContent = 'Stop now?'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = 'Stop'; } }, 3000); } break;
     case 'no-loose': $('#loose-q').innerHTML = `<i class="muted">Nothing left over. Exactly right.</i>`; break;
     case 'add-loose': S.loose[d.id] = (S.loose[d.id] || 0) + 1; save(); $('#loose-q').innerHTML = `<i class="muted">Noted. It waits on the Focus page, not in your head.</i>`; break;
-    case 'loose': openSheet(`<h3>Loose ends: ${esc(actById(d.id).name)}</h3><button class="btn primary full" data-act="tie" data-id="${esc(d.id)}">Tie one off now (timed)</button><button class="btn full" data-act="tied" data-id="${esc(d.id)}">Already done (+5)</button><button class="btn full" data-act="drop" data-id="${esc(d.id)}">No longer needed</button><button class="btn full" data-act="close">Close</button>`); break;
+    case 'loose': openSheet(`<h3>Loose ends: ${esc(actById(d.id).name)}</h3><button class="btn primary full" data-act="tie" data-id="${esc(d.id)}">Tie one off now (timed)</button><button class="btn full" data-act="tied" data-id="${esc(d.id)}">Already done${S.tree.t2 ? ' (+15)' : ''}</button><button class="btn full" data-act="drop" data-id="${esc(d.id)}">No longer needed</button><button class="btn full" data-act="close">Close</button>`); break;
     case 'tie': closeSheet(); begin(d.id, true); break;
-    case 'tied': if (S.loose[d.id]) { S.loose[d.id]--; S.ink += 5; S.xp += 5; const t2 = ymd(); S.ties[t2] = (S.ties[t2] || 0) + 1; const cl = checkClean(); save(logRow('loose', actById(d.id).name, '', 5, '', 'tied')); checkAch(); closeSheet(); renderAll(); toast(cl ? 'Every loose end tied. A clean day: +40.' : 'Tied off.'); } break;
+    case 'tied': if (S.loose[d.id]) { S.loose[d.id]--; const t2 = ymd(); S.ties[t2] = (S.ties[t2] || 0) + 1; const pay = S.tree.t2 && capToday('tie', 3) ? 15 : 0; if (pay) bonus(pay); const cl = checkClean(); save(logRow('loose', actById(d.id).name, '', pay, '', 'tied')); checkAch(); closeSheet(); renderAll(); toast(cl ? 'Every loose end tied. A clean day.' : `Tied off${pay ? ': +15' : ''}.`); } break;
     case 'drop': if (S.loose[d.id]) { S.loose[d.id]--; save(); closeSheet(); renderAll(); } break;
     case 'reward-close': $('#reward').classList.add('hidden'); renderAll(); break;
     case 'again': $('#reward').classList.add('hidden'); begin(S.settings.act); break;
@@ -1017,15 +1193,16 @@ document.addEventListener('click', e => {
     case 'save-settings': {
       const L = S.settings.look; S.settings.name = $('#s-name').value.trim().slice(0, 30) || 'The Fellow';
       L.skin = $('#s-skin').value; L.hair = $('#s-hair').value; L.style = $('#s-style').value; L.beard = $('#s-beard').value;
-      S.settings.theme = $('#s-theme').value; S.settings.face = $('#s-face').value; S.settings.sound = $('#s-sound').checked;
+      S.settings.theme = $('#s-theme').value; S.settings.face = $('#s-face').value; S.settings.sound = $('#s-sound').checked; S.settings.bell = $('#s-bell').value || '';
       save(); closeSheet(); renderAll(); } break;
     case 'reload': closeSheet(); load('user'); break;
     case 'connect': { const c = parseConn($('#s-conn').value); if (!c) { toast('That code does not look right. Copy the whole Connection code cell from the Connect tab.'); break; } CONN = c; LS.set('institute-conn', c); closeSheet(); toast('Connecting...'); load('user'); } break;
     case 'disconnect': if (!d.armed) { d.armed = '1'; t.textContent = 'Disconnect this device. Sure?'; break; } CONN = null; LS.set('institute-conn', null); closeSheet(); renderAll(); setSync('Disconnected. Saving on this device only.'); break;
     case 'copy': { const v = JSON.stringify(S); $('#backup').value = v; $('#backup').select(); Promise.resolve().then(() => navigator.clipboard.writeText(v)).then(() => toast('Backup copied.'), () => toast('Select the text and copy it.')); } break;
-    case 'restore': if (!d.armed) { d.armed = '1'; t.textContent = 'Replaces everything. Sure?'; break; } try { const o = JSON.parse($('#backup').value); if (!o || o.v !== 3) throw 0; S = normalise(o); save(); closeSheet(); renderAll(); toast('Restored.'); } catch (err) { toast('That is not an Institute backup.'); } break;
+    case 'restore': if (!d.armed) { d.armed = '1'; t.textContent = 'Replaces everything. Sure?'; break; } try { const o = JSON.parse($('#backup').value); if (!o || !o.v) throw 0; S = normalise(o); save(); closeSheet(); renderAll(); toast('Restored.'); } catch (err) { toast('That is not an Institute backup.'); } break;
   }
 });
+document.addEventListener('toggle', e => { const el = e.target; if (el.matches && el.matches('details.more')) pickerOpen[el.dataset.pk] = el.open; }, true);
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (pendingLogs.length || syncTimer) flush(); return; } if (S.active) tick(); else if (connected() && Date.now() - lastLoad > 60000) load('quiet'); else renderAll(); });
 
 /* ============ load ============ */
@@ -1033,9 +1210,10 @@ let lastLoad = 0;
 function daily() {
   const t = ymd();
   if (S.marks.lastOpen === t) return;
-  if (S.marks.lastOpen && daysBetween(S.marks.lastOpen, t) >= 7) { S.c.prodigal++; toast('Welcome back, Fellow. Your desk is exactly as you left it.'); }
+  if (S.marks.lastOpen && daysBetween(S.marks.lastOpen, t) >= 7) { S.c.prodigal++; chron('Homecoming', `Back after ${daysBetween(S.marks.lastOpen, t)} days. The desk was exactly as it was left.`); toast('Welcome back, Fellow. Your desk is exactly as you left it.'); }
   S.marks.lastOpen = t; save(); checkAch();
 }
+function notices() { if (S.treeRefund) { toast(`The Tree has been redrawn. ${num(S.treeRefund)} ink refunded to spend again.`); S.treeRefund = 0; save(); } }
 function applyRemote(res) {
   if (res.raw) { CFG = parseConfig(res.raw); LS.set('institute-raw', res.raw); }
   if (res.url) { sheetUrl = res.url; LS.set('institute-sheeturl', res.url); }
@@ -1050,12 +1228,12 @@ function load(mode) {
     CFG = parseConfig(LS.get('institute-raw', null) || GENERIC);
     const st = LS.get('institute-state', null); if (st) S = normalise(st);
     $('#view-loading').classList.add('hidden'); showTab(tab); if (S.active) showRun();
-    if (!connected()) daily();
+    if (!connected()) { daily(); notices(); }
   }
   if (!connected()) { setSync('Not connected to your Sheet yet. Saving on this device.'); return Promise.resolve(); }
   setSync('Checking your Sheet...');
   return remote('getAll').then(res => {
-    const was = !!S.active; applyRemote(res); daily(); if (!$('#reward').classList.contains('hidden')) header(); else renderAll(); if (S.active && !was) showRun();
+    const was = !!S.active; applyRemote(res); daily(); notices(); if (!$('#reward').classList.contains('hidden')) header(); else renderAll(); if (S.active && !was) showRun();
     setSync('Connected to your Google Sheet.'); if (pendingLogs.length) flush();
     if (mode === 'user') toast('Connected and up to date.');
   }, err => { setSync('Working on this device. ' + err.message); if (mode === 'user') toast('Could not reach the Sheet: ' + err.message); });
